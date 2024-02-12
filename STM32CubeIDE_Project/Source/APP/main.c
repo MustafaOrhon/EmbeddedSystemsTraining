@@ -23,7 +23,7 @@
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-
+volatile unsigned long ulHighFrequencyTimerTicks;
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -32,6 +32,9 @@
  * Prototypes of private functions
  *********************************************************************************************************************/
 static void SystemClock_Config (void);
+static void TIM13_Init(void);
+void configureTimerForRunTimeStats(void);
+unsigned long getRunTimeCounterValue(void);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
@@ -62,17 +65,35 @@ static void SystemClock_Config (void) {
     }
     LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_TWICE);
 }
+
+static void TIM13_Init(void){
+    LL_TIM_InitTypeDef LL_TIM_InitStruct = {0};
+
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM13);
+
+    NVIC_SetPriority(TIM8_UP_TIM13_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+    NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
+
+    LL_TIM_InitStruct.Prescaler   = 960-LL_TIM_IC_FILTER_FDIV1_N2;
+    LL_TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+    LL_TIM_InitStruct.Autoreload  = 65535;
+    LL_TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+
+    LL_TIM_Init(TIM13,&LL_TIM_InitStruct);
+    LL_TIM_DisableARRPreload(TIM13);
+}
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
 int main (void) {
-    HAL_Init();
+    HAL_Init(); /*Initialize the Hardware Abstraction Layer*/
 
-    SystemClock_Config();
+    SystemClock_Config(); /* Configure the system clock*/
 
-    osKernelInitialize();
-    osKernelStart();
+    TIM13_Init(); /*Initialize TIM13*/
 
+    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
+    osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
 
     }
@@ -83,3 +104,20 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
         HAL_IncTick();
     }
 }
+
+void configureTimerForRunTimeStats(void){
+    ulHighFrequencyTimerTicks = 0;
+    LL_TIM_EnableIT_UPDATE(TIM13);
+    LL_TIM_EnableCounter(TIM13);
+}
+unsigned long getRunTimeCounterValue(void){
+    return ulHighFrequencyTimerTicks;
+}
+
+void TIM8_UP_TIM13_IRQHandler(void){
+    if(LL_TIM_IsActiveFlag_UPDATE(TIM13)){
+        ulHighFrequencyTimerTicks++;
+        LL_TIM_ClearFlag_UPDATE(TIM13);
+    }
+}
+
