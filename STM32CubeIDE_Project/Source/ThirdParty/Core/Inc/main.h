@@ -85,10 +85,10 @@ void Error_Handler(void);
 #define Modem_UART_TX_GPIO_Port GPIOD
 #define Debug_TX_Pin LL_GPIO_PIN_6
 #define Debug_TX_GPIO_Port GPIOB
-#define Modem_UART_CTS_Pin LL_GPIO_PIN_4
-#define Modem_UART_CTS_GPIO_Port GPIOD
 #define Debug_RX_Pin LL_GPIO_PIN_7
 #define Debug_RX_GPIO_Port GPIOB
+#define Modem_UART_CTS_Pin LL_GPIO_PIN_4
+#define Modem_UART_CTS_GPIO_Port GPIOD
 #define Modem_UART_RTS_Pin LL_GPIO_PIN_3
 #define Modem_UART_RTS_GPIO_Port GPIOD
 #define GNSS_On_Pin LL_GPIO_PIN_7
