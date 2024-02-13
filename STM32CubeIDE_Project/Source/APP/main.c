@@ -8,6 +8,7 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_usart.h"
 #include "usart.h"
+#include <gpio_driver.h>
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -72,6 +73,7 @@ int main (void) {
 
     osKernelInitialize();
     osKernelStart();
+
 
     while (1) {
 
