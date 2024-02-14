@@ -5,13 +5,13 @@
  *********************************************************************************************************************/
 #include <main.h>
 #include <stm32f4xx_ll_gpio.h>
-#include <stdbool.h> // For bool type
+#include <stdbool.h>
 
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eGpioDriverPinFirst = 0, /* Placeholder to indicate the last element*/
+    eGpioDriverPinFirst = 0, /* Placeholder to indicate the first element*/
     eModemPowerOffPin = eGpioDriverPinFirst,
     eGPSFixLedPin,
     eStatLedPin,
@@ -20,6 +20,10 @@ typedef enum {
     eModemOnPin,
     eModemUartCtsPin,
     eGnssOnPin,
+    eDebugTxPin,
+    eDebugRxPin,
+    eModemUartRxPin,
+    eModemUartTxPin,
     eGpioPinLast, /* Placeholder to indicate the last element*/
 } eGpioPinName_t;
 

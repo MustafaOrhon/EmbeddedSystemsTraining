@@ -105,7 +105,48 @@ const static sGpioConfig_t static_gpio_lut[] = {
         .pin_speed = LL_GPIO_SPEED_FREQ_LOW,
         .pin_af_mode = LL_GPIO_AF_0,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOG
+    },
+    [eDebugTxPin] = {
+        .port = Debug_TX_GPIO_Port,
+        .pin_number = Debug_TX_Pin,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOB
+    },
+    [eDebugRxPin] = {
+        .port = Debug_RX_GPIO_Port,
+        .pin_number = Debug_RX_Pin,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOB
+    },
+    [eModemUartRxPin] = {
+        .port = Modem_UART_RX_GPIO_Port,
+        .pin_number = Modem_UART_RX_Pin,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOD
+    },
+    [eModemUartTxPin] = {
+        .port = Modem_UART_TX_GPIO_Port,
+        .pin_number = Modem_UART_TX_Pin,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     }
+
 };
 
 
@@ -131,7 +172,7 @@ const static sGpioConfig_t static_gpio_lut[] = {
 void GPIO_Driver_Init(void){
   LL_GPIO_InitTypeDef gpio_initstruct = {0};
 
-  for(eGpioPinName_t i = eGpioDriverPinFirst; i <= eGpioPinLast; i++){
+  for(eGpioPinName_t i = eGpioDriverPinFirst; i < eGpioPinLast; i++){
       LL_AHB1_GRP1_EnableClock(static_gpio_lut[i].clock);
       LL_GPIO_ResetOutputPin(static_gpio_lut[i].port,static_gpio_lut[i].pin_number);
       gpio_initstruct.Mode = static_gpio_lut[i].pin_mode;
