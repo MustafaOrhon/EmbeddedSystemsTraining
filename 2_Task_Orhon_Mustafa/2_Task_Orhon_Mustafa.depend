@@ -1,7 +1,0 @@
-# depslib dependency file v1.0
-1707722825 source:c:\users\iot13\onedrive - teltonika.lt\desktop\mustafaorhontrainingfiles\2_task_orhon_mustafa\main.c
-	<stdio.h>
-	<stdlib.h>
-	<string.h>
-	<ctype.h>
-

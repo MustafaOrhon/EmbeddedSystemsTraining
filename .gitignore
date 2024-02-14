@@ -1,1 +1,6 @@
 /STM32CubeIDE_Project/Debug/
+bin/
+obj/
+*.layout
+*.depend
+
