@@ -1,7 +1,7 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <gpio_driver.h> //explain how <> differs
+#include "gpio_driver.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -22,10 +22,10 @@ typedef struct {
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give size
+const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
     [eGpioDriverPin_ModemPowerOffPin] = {
-        .port = Modem_Power_Off_GPIO_Port,
-        .pin_number = Modem_Power_Off_Pin,
+        .port =GPIOE,
+        .pin_number = LL_GPIO_PIN_1,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -34,8 +34,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOE,
     },
     [eGpioDriverPin_GPSFixLedPin] = {
-        .port = GPS_Fix_LED_GPIO_Port,
-        .pin_number = GPS_Fix_LED_Pin,
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_4,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -44,8 +44,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOB
     },
     [eGpioDriverPin_StatLedPin] = {
-        .port = Stat_LED_GPIO_Port,
-        .pin_number = Stat_LED_Pin,
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_5,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -54,8 +54,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOB
     },
     [eGpioDriverPin_ModemUartDtrPin] = {
-        .port = Modem_UART_DTR_GPIO_Port,
-        .pin_number = Modem_UART_DTR_Pin,
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_7,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -64,8 +64,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     },
     [eGpioDriverPin_ModemUartRtsPin] = {
-        .port = Modem_UART_RTS_GPIO_Port,
-        .pin_number = Modem_UART_RTS_Pin,
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_3,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -74,8 +74,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     },
     [eGpioDriverPin_ModemOnPin] = {
-        .port = Modem_ON_GPIO_Port,
-        .pin_number = Modem_ON_Pin,
+        .port = GPIOA,
+        .pin_number = LL_GPIO_PIN_15,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -84,8 +84,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOA
     },
     [eGpioDriverPin_ModemUartCtsPin] = {
-        .port = Modem_UART_CTS_GPIO_Port,
-        .pin_number = Modem_UART_CTS_Pin,
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_4,
         .pin_mode = LL_GPIO_MODE_INPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -94,8 +94,8 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     },
     [eGpioDriverPin_GnssOnPin] = {
-        .port = GNSS_On_GPIO_Port,
-        .pin_number = GNSS_On_Pin,
+        .port = GPIOG,
+        .pin_number = LL_GPIO_PIN_7,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -123,21 +123,23 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = { //give siz
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-void GPIO_Driver_Init(void){
-  LL_GPIO_InitTypeDef gpio_init_struct = {0};
-
-  for(eGpioDriverPin_t i = eGpioDriverPin_First; i < eGpioDriverPin_Last; i++){
-      LL_AHB1_GRP1_EnableClock(g_static_gpio_lut[i].clock);
-      LL_GPIO_ResetOutputPin(g_static_gpio_lut[i].port,g_static_gpio_lut[i].pin_number);
-      gpio_init_struct.Mode = g_static_gpio_lut[i].pin_mode;
-      gpio_init_struct.Pin = g_static_gpio_lut[i].pin_number;
-      gpio_init_struct.OutputType = g_static_gpio_lut[i].pin_otype;
-      gpio_init_struct.Pull = g_static_gpio_lut[i].pin_pupd_control;
-      gpio_init_struct.Speed = g_static_gpio_lut[i].pin_speed;
-      gpio_init_struct.Alternate = g_static_gpio_lut[i].pin_af_mode;
-
-      LL_GPIO_Init(g_static_gpio_lut[i].port,&gpio_init_struct);
-  }
+bool GPIO_Driver_Init (void) {
+    LL_GPIO_InitTypeDef gpio_init_struct = {0};
+    bool init_success = true;
+    for (eGpioDriverPin_t i = eGpioDriverPin_First; i < eGpioDriverPin_Last; i++) {
+        LL_AHB1_GRP1_EnableClock(g_static_gpio_lut[i].clock);
+        LL_GPIO_ResetOutputPin(g_static_gpio_lut[i].port, g_static_gpio_lut[i].pin_number);
+        gpio_init_struct.Mode = g_static_gpio_lut[i].pin_mode;
+        gpio_init_struct.Pin = g_static_gpio_lut[i].pin_number;
+        gpio_init_struct.OutputType = g_static_gpio_lut[i].pin_otype;
+        gpio_init_struct.Pull = g_static_gpio_lut[i].pin_pupd_control;
+        gpio_init_struct.Speed = g_static_gpio_lut[i].pin_speed;
+        gpio_init_struct.Alternate = g_static_gpio_lut[i].pin_af_mode;
+        if (LL_GPIO_Init(g_static_gpio_lut[i].port, &gpio_init_struct) != SUCCESS) {
+            init_success = false;
+        }
+    }
+    return init_success;
 }
 
 bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state) {
@@ -150,7 +152,6 @@ bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state) {
     } else {
         LL_GPIO_ResetOutputPin(g_static_gpio_lut[pin_name].port, g_static_gpio_lut[pin_name].pin_number);
     }
-
     return true;
 }
 

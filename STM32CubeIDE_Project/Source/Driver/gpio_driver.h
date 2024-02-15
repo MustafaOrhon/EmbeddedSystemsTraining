@@ -3,9 +3,9 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <main.h>
 #include <stdbool.h>
-
+#include "stm32f4xx_ll_gpio.h"
+#include "stm32f4xx_ll_bus.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -33,7 +33,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-void GPIO_Driver_Init(void); //Should return state!
+bool GPIO_Driver_Init(void);
 bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state);
 bool GPIO_Driver_ReadPin(eGpioDriverPin_t pin_name, bool *pin_state);
 bool GPIO_Driver_TogglePin(eGpioDriverPin_t pin_name);
