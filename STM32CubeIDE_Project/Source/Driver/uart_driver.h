@@ -3,18 +3,17 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <main.h>
-#include <stm32f4xx_ll_usart.h>
-#include <gpio_driver.h>
 #include <stdbool.h>
+#include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_usart.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eUartDriverPortFirst = 0, /* Placeholder to indicate the first element*/
-    eUart1 = eUartDriverPortFirst,
+    eUartDriverPort_First = 0, /* Placeholder to indicate the first element*/
+    eUart1 = eUartDriverPort_First,
     eUart2,
-    eUartDriverPortLast, /* Placeholder to indicate the last element*/
+    eUartDriverPort_Last, /* Placeholder to indicate the last element*/
 } eUartPortEnum_t;
 /**********************************************************************************************************************
  * Exported types
@@ -27,5 +26,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-void UART_Driver_Init(void);
+bool UART_Driver_Init(void);
+void UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
+void UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t* bytes, uint32_t size);
 #endif /* __UART_DRIVER__H__ */

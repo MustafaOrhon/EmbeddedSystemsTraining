@@ -1,14 +1,15 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <string.h>
 #include "cmsis_os.h"
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_usart.h"
-#include "usart.h"
 #include "gpio_driver.h"
+#include "uart_driver.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -82,6 +83,11 @@ static void TIM13_Init(void){
     LL_TIM_Init(TIM13,&LL_TIM_InitStruct);
     LL_TIM_DisableARRPreload(TIM13);
 }
+void delay(volatile int count) {
+    while (count--) {
+    }
+}
+const char* myString = "Teltonika academy!\n";
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
@@ -90,9 +96,18 @@ int main (void) {
     SystemClock_Config();
     TIM13_Init();
 
-    osKernelInitialize();
-    osKernelStart();
+    SystemClock_Config(); /* Configure the system clock*/
+
+    TIM13_Init(); /*Initialize TIM13*/
+    GPIO_Driver_Init();
+    UART_Driver_Init();
+
+    // osKernelInitialize(); /*Initialize the RTOS Kernelr*/
+    //osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
+
+        UART_Driver_SendMultipleBytes(eUart1, (const uint8_t*)myString, strlen(myString));
+        delay(12000000);
     }
 }
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
