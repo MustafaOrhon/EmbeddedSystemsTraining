@@ -100,7 +100,8 @@ int main (void) {
 
     TIM13_Init(); /*Initialize TIM13*/
     GPIO_Driver_Init();
-    UART_Driver_Init();
+
+    UART_Driver_Init(eUart1,115200);
 
     // osKernelInitialize(); /*Initialize the RTOS Kernelr*/
     //osKernelStart(); /*Start the RTOS Kernel*/
