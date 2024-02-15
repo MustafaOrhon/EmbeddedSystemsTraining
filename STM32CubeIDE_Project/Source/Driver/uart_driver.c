@@ -9,7 +9,8 @@
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef void (*EnableClock)(uint32_t periph);
+typedef void (*EnableClock_t)(uint32_t periph);
+
 
 typedef struct {
     USART_TypeDef   *port;
@@ -21,7 +22,7 @@ typedef struct {
     uint32_t        hardware_flow_control;
     uint32_t        oversampling;
     uint32_t        clock;
-    EnableClock     enable_clock;
+    EnableClock_t   enable_clock;
 } sUartConfig_t;
 /**********************************************************************************************************************
  * Private constants
@@ -71,10 +72,10 @@ const static sUartConfig_t static_uart_lut[] = {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-void UART_Driver_Init(void){
+bool UART_Driver_Init(void){ //should take some port parameter and baud rate
   LL_USART_InitTypeDef usart_initstruct = {0};
-
-  for(eUartPortEnum_t i = eUartDriverPortFirst; i < eUartDriverPortLast; i++){
+  bool init_success = true;
+  for(eUartPortEnum_t i = eUartDriverPort_First; i < eUartDriverPort_Last; i++){
 
       static_uart_lut[i].enable_clock(static_uart_lut[i].clock);
 
@@ -85,9 +86,23 @@ void UART_Driver_Init(void){
       usart_initstruct.TransferDirection = static_uart_lut[i].transfer_direction;
       usart_initstruct.HardwareFlowControl = static_uart_lut[i].hardware_flow_control;
       usart_initstruct.OverSampling = static_uart_lut[i].oversampling;
-
-      LL_USART_Init(static_uart_lut[i].port, &usart_initstruct);
+      if (LL_USART_Init(static_uart_lut[i].port, &usart_initstruct) != SUCCESS) {
+          init_success = false;
+      }
       LL_USART_ConfigAsyncMode(static_uart_lut[i].port);
       LL_USART_Enable(static_uart_lut[i].port);
   }
+  return init_success;
 }
+
+void UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte) {  //how to return bool ask
+    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port));
+    LL_USART_TransmitData8(static_uart_lut[port].port, byte);
+}
+
+void UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t *bytes, uint32_t size) {
+    for (uint32_t i = 0; i < size; i++) {
+        UART_Driver_SendByte(port, bytes[i]);
+    }
+}
+
