@@ -126,16 +126,16 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
 bool GPIO_Driver_Init (void) {
     LL_GPIO_InitTypeDef gpio_init_struct = {0};
     bool init_success = true;
-    for (eGpioDriverPin_t i = eGpioDriverPin_First; i < eGpioDriverPin_Last; i++) {
-        LL_AHB1_GRP1_EnableClock(g_static_gpio_lut[i].clock);
-        LL_GPIO_ResetOutputPin(g_static_gpio_lut[i].port, g_static_gpio_lut[i].pin_number);
-        gpio_init_struct.Mode = g_static_gpio_lut[i].pin_mode;
-        gpio_init_struct.Pin = g_static_gpio_lut[i].pin_number;
-        gpio_init_struct.OutputType = g_static_gpio_lut[i].pin_otype;
-        gpio_init_struct.Pull = g_static_gpio_lut[i].pin_pupd_control;
-        gpio_init_struct.Speed = g_static_gpio_lut[i].pin_speed;
-        gpio_init_struct.Alternate = g_static_gpio_lut[i].pin_af_mode;
-        if (LL_GPIO_Init(g_static_gpio_lut[i].port, &gpio_init_struct) != SUCCESS) {
+    for (eGpioDriverPin_t gpio = eGpioDriverPin_First; gpio < eGpioDriverPin_Last; gpio++) {
+        LL_AHB1_GRP1_EnableClock(g_static_gpio_lut[gpio].clock);
+        LL_GPIO_ResetOutputPin(g_static_gpio_lut[gpio].port, g_static_gpio_lut[gpio].pin_number);
+        gpio_init_struct.Mode = g_static_gpio_lut[gpio].pin_mode;
+        gpio_init_struct.Pin = g_static_gpio_lut[gpio].pin_number;
+        gpio_init_struct.OutputType = g_static_gpio_lut[gpio].pin_otype;
+        gpio_init_struct.Pull = g_static_gpio_lut[gpio].pin_pupd_control;
+        gpio_init_struct.Speed = g_static_gpio_lut[gpio].pin_speed;
+        gpio_init_struct.Alternate = g_static_gpio_lut[gpio].pin_af_mode;
+        if (LL_GPIO_Init(g_static_gpio_lut[gpio].port, &gpio_init_struct) != SUCCESS) {
             init_success = false;
         }
     }
