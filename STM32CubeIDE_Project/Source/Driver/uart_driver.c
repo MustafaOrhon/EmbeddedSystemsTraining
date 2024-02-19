@@ -90,7 +90,7 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     }
     LL_USART_ConfigAsyncMode(static_uart_lut[port].port);
     LL_USART_Enable(static_uart_lut[port].port);
-    if (LL_USART_IsEnabled(static_uart_lut[port].port) == false) {
+    if (LL_USART_IsEnabled(static_uart_lut[port].port) == 0) {
         return false;
     }
     return true;
@@ -99,10 +99,11 @@ bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
-    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port));
+    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port)){}; //add
     LL_USART_TransmitData8(static_uart_lut[port].port, byte);
     return true;
 }
+//use size_t for size
 bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, uint32_t size) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last) || (bytes == NULL) || (size == 0)) {
         return false;
