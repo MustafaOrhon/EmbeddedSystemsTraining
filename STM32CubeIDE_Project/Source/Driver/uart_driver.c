@@ -4,10 +4,12 @@
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_usart.h"
 #include "uart_driver.h"
+#include "ring_buffer.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
+#define UART_RX_RING_BUFFER_SIZE 128
+static sGenericRingBuffer_t uart_rx_ring_buffer; // CAN BE IMPLEMENTED TO UART STRUCT??
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -76,6 +78,10 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
+    //NEEDS FIX
+    if (GenericRingBuffer_Init(&uart_rx_ring_buffer, sizeof(uint8_t), UART_RX_RING_BUFFER_SIZE) == false) {
+        return false;
+    }
     LL_USART_InitTypeDef usart_init_struct = {0};
     static_uart_lut[port].enable_clock(static_uart_lut[port].clock);
     usart_init_struct.BaudRate = (baud_rate == 0) ? static_uart_lut[port].baudrate : baud_rate;
@@ -92,6 +98,18 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     LL_USART_Enable(static_uart_lut[port].port);
     if (LL_USART_IsEnabled(static_uart_lut[port].port) == 0) {
         return false;
+    }
+
+    //NEEDS FIX!!!!
+    if (port == eUartDriverPort_Uart1) {
+        LL_USART_EnableIT_RXNE(USART1);
+        NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_EnableIRQ(USART1_IRQn);
+    } else if (port == eUartDriverPort_Uart2) {
+
+        LL_USART_EnableIT_RXNE(USART2);
+        NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_EnableIRQ(USART2_IRQn);
     }
     return true;
 }
@@ -114,3 +132,14 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     }
     return true;
 }
+void USART1_IRQHandler (void) {
+    if (LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)) {
+        uint8_t data = LL_USART_ReceiveData8(USART1);
+        GenericRingBuffer_Write(&uart_rx_ring_buffer, &data);
+    }
+    // Additional USART1 interrupt handling as needed
+}
+bool UART_Driver_ReadByte (uint8_t *byte) {
+    return GenericRingBuffer_Read(&uart_rx_ring_buffer, byte);
+}
+
