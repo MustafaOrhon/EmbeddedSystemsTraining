@@ -26,7 +26,7 @@ typedef struct {
  *********************************************************************************************************************/
 const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
     [eGpioDriverPin_ModemPowerOffPin] = {
-        .port =GPIOE,
+        .port = GPIOE,
         .pin_number = LL_GPIO_PIN_1,
         .pin_mode = LL_GPIO_MODE_OUTPUT,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
@@ -144,11 +144,13 @@ bool GPIO_Driver_Init (void) {
     return init_success;
 }
 
-bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state) {
+bool GPIO_Driver_WritePin (eGpioDriverPin_t pin_name, bool pin_state) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
         return false;
     }
-
+    if (g_static_gpio_lut[pin_name].pin_mode != LL_GPIO_MODE_OUTPUT) {
+        return false;
+    }
     if (pin_state) {
         LL_GPIO_SetOutputPin(g_static_gpio_lut[pin_name].port, g_static_gpio_lut[pin_name].pin_number);
     } else {
@@ -157,11 +159,11 @@ bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state) {
     return true;
 }
 
-bool GPIO_Driver_ReadPin(eGpioDriverPin_t pin_name, bool *is_pin_set) {
-    if (((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) || (is_pin_set == NULL)) {
+bool GPIO_Driver_ReadPin (eGpioDriverPin_t pin_name, bool *is_pin_set) {
+    if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last) || (is_pin_set == NULL)) {
         return false;
     }
-    if(g_static_gpio_lut[pin_name].pin_mode == LL_GPIO_MODE_OUTPUT) {
+    if (g_static_gpio_lut[pin_name].pin_mode == LL_GPIO_MODE_OUTPUT) {
         *is_pin_set = LL_GPIO_IsOutputPinSet(g_static_gpio_lut[pin_name].port, g_static_gpio_lut[pin_name].pin_number);
     }
     else {
@@ -170,8 +172,11 @@ bool GPIO_Driver_ReadPin(eGpioDriverPin_t pin_name, bool *is_pin_set) {
     return true;
 }
 
-bool GPIO_Driver_TogglePin(eGpioDriverPin_t pin_name) {
+bool GPIO_Driver_TogglePin (eGpioDriverPin_t pin_name) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
+        return false;
+    }
+    if (g_static_gpio_lut[pin_name].pin_mode != LL_GPIO_MODE_OUTPUT) {
         return false;
     }
     LL_GPIO_TogglePin(g_static_gpio_lut[pin_name].port, g_static_gpio_lut[pin_name].pin_number);
