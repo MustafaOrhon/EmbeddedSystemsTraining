@@ -24,6 +24,9 @@ typedef struct {
     uint32_t        clock;
     EnableClock_t   enable_clock;
 } sUartConfig_t;
+/**********************************************************************************************************************
+ * Private constants
+ *********************************************************************************************************************/
 const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
     [eUartDriverPort_Uart1] = {
         .port = USART1,
@@ -38,35 +41,6 @@ const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
         .enable_clock = LL_APB2_GRP1_EnableClock
     },
     [eUartDriverPort_Uart2] = {
-        .port = USART2,
-        .baudrate = 115200,
-        .datawidth = LL_USART_DATAWIDTH_8B,
-        .stopbits = LL_USART_STOPBITS_1,
-        .parity = LL_USART_PARITY_NONE,
-        .transfer_direction = LL_USART_DIRECTION_TX_RX,
-        .hardware_flow_control = LL_USART_HWCONTROL_NONE,
-        .oversampling = LL_USART_OVERSAMPLING_16,
-        .clock = LL_APB1_GRP1_PERIPH_USART2,
-        .enable_clock = LL_APB1_GRP1_EnableClock
-    }
-};
-/**********************************************************************************************************************
- * Private constants
- *********************************************************************************************************************/
-const static sUartConfig_t static_uart_lut[] = {
-    [eUart1] = {
-        .port = USART1,
-        .baudrate = 115200,
-        .datawidth = LL_USART_DATAWIDTH_8B,
-        .stopbits = LL_USART_STOPBITS_1,
-        .parity = LL_USART_PARITY_NONE,
-        .transfer_direction = LL_USART_DIRECTION_TX_RX,
-        .hardware_flow_control = LL_USART_HWCONTROL_NONE,
-        .oversampling = LL_USART_OVERSAMPLING_16,
-        .clock = LL_APB2_GRP1_PERIPH_USART1,
-        .enable_clock = LL_APB2_GRP1_EnableClock
-    },
-    [eUart2] = {
         .port = USART2,
         .baudrate = 115200,
         .datawidth = LL_USART_DATAWIDTH_8B,
