@@ -145,6 +145,7 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     }
+
 };
 /**********************************************************************************************************************
  * Private variables
