@@ -8,6 +8,7 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_usart.h"
 #include "usart.h"
+#include "gpio_driver.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -65,7 +66,6 @@ static void SystemClock_Config (void) {
     }
     LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_TWICE);
 }
-
 static void TIM13_Init(void){
     LL_TIM_InitTypeDef LL_TIM_InitStruct = {0};
 
@@ -86,19 +86,15 @@ static void TIM13_Init(void){
  * Definitions of exported functions
  *********************************************************************************************************************/
 int main (void) {
-    HAL_Init(); /*Initialize the Hardware Abstraction Layer*/
+    HAL_Init();
+    SystemClock_Config();
+    TIM13_Init();
 
-    SystemClock_Config(); /* Configure the system clock*/
-
-    TIM13_Init(); /*Initialize TIM13*/
-
-    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
-    osKernelStart(); /*Start the RTOS Kernel*/
+    osKernelInitialize();
+    osKernelStart();
     while (1) {
-
     }
 }
-
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM2) {
         HAL_IncTick();
