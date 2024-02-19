@@ -26,5 +26,5 @@ typedef enum {
  *********************************************************************************************************************/
 bool UART_Driver_Init(eUartPortEnum_t port, uint32_t baudRate);
 bool UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
-bool UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t* bytes, uint32_t size);
+bool UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t* bytes, size_t size);
 #endif /* __UART_DRIVER__H__ */
