@@ -8,10 +8,10 @@
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eUartDriverPort_First = 0, /* Placeholder to indicate the first element*/
-    eUart1 = eUartDriverPort_First,
-    eUart2,
-    eUartDriverPort_Last, /* Placeholder to indicate the last element*/
+    eUartDriverPort_First = 0,
+    eUartDriverPort_Uart1 = eUartDriverPort_First,
+    eUartDriverPort_Uart2,
+    eUartDriverPort_Last,
 } eUartPortEnum_t;
 /**********************************************************************************************************************
  * Exported types

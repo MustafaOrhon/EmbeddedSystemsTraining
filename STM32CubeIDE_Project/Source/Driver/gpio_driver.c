@@ -105,9 +105,9 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_0,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOG
     },
-    [eDebugTxPin] = {
-        .port = Debug_TX_GPIO_Port,
-        .pin_number = Debug_TX_Pin,
+    [eGpioDriverPin_DebugTxPin] = {
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_6,
         .pin_mode = LL_GPIO_MODE_ALTERNATE,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -115,9 +115,9 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOB
     },
-    [eDebugRxPin] = {
-        .port = Debug_RX_GPIO_Port,
-        .pin_number = Debug_RX_Pin,
+    [eGpioDriverPin_DebugRxPin] = {
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_7,
         .pin_mode = LL_GPIO_MODE_ALTERNATE,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -125,9 +125,9 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOB
     },
-    [eModemUartRxPin] = {
-        .port = Modem_UART_RX_GPIO_Port,
-        .pin_number = Modem_UART_RX_Pin,
+    [eGpioDriverPin_ModemUartRxPin] = {
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_6,
         .pin_mode = LL_GPIO_MODE_ALTERNATE,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -135,9 +135,9 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     },
-    [eModemUartTxPin] = {
-        .port = Modem_UART_TX_GPIO_Port,
-        .pin_number = Modem_UART_TX_Pin,
+    [eGpioDriverPin_ModemUartTxPin] = {
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_5,
         .pin_mode = LL_GPIO_MODE_ALTERNATE,
         .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
         .pin_pupd_control = LL_GPIO_PULL_NO,
@@ -145,7 +145,6 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     }
-
 };
 /**********************************************************************************************************************
  * Private variables
@@ -184,7 +183,6 @@ bool GPIO_Driver_Init (void) {
     }
     return init_success;
 }
-
 bool GPIO_Driver_WritePin (eGpioDriverPin_t pin_name, bool pin_state) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
         return false;
@@ -199,7 +197,6 @@ bool GPIO_Driver_WritePin (eGpioDriverPin_t pin_name, bool pin_state) {
     }
     return true;
 }
-
 bool GPIO_Driver_ReadPin (eGpioDriverPin_t pin_name, bool *is_pin_set) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last) || (is_pin_set == NULL)) {
         return false;
@@ -212,7 +209,6 @@ bool GPIO_Driver_ReadPin (eGpioDriverPin_t pin_name, bool *is_pin_set) {
     }
     return true;
 }
-
 bool GPIO_Driver_TogglePin (eGpioDriverPin_t pin_name) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
         return false;

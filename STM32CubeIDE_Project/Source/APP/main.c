@@ -4,10 +4,12 @@
 #include <string.h>
 #include "cmsis_os.h"
 #include "stm32f4xx_ll_rcc.h"
+#include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_usart.h"
+#include "stm32f4xx_ll_tim.h"
 #include "gpio_driver.h"
 #include "uart_driver.h"
 /**********************************************************************************************************************
@@ -101,13 +103,13 @@ int main (void) {
     TIM13_Init(); /*Initialize TIM13*/
     GPIO_Driver_Init();
 
-    UART_Driver_Init(eUart1,115200);
+    UART_Driver_Init(eUartDriverPort_Uart1,115200);
 
     // osKernelInitialize(); /*Initialize the RTOS Kernelr*/
     //osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
 
-        UART_Driver_SendMultipleBytes(eUart1, (const uint8_t*)myString, strlen(myString));
+        UART_Driver_SendMultipleBytes(eUartDriverPort_Uart1, (const uint8_t*)myString, strlen(myString));
         delay(12000000);
     }
 }

@@ -3,7 +3,7 @@
  *********************************************************************************************************************/
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_usart.h"
-#include <uart_driver.h>
+#include "uart_driver.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -12,7 +12,6 @@
  * Private typedef
  *********************************************************************************************************************/
 typedef void (*EnableClock_t)(uint32_t periph);
-//separate .h for ring buffer struct!!!
 typedef struct {
     USART_TypeDef   *port;
     uint32_t        baudrate;
@@ -25,9 +24,8 @@ typedef struct {
     uint32_t        clock;
     EnableClock_t   enable_clock;
 } sUartConfig_t;
-
 const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
-    [eUart1] = {
+    [eUartDriverPort_Uart1] = {
         .port = USART1,
         .baudrate = 115200,
         .datawidth = LL_USART_DATAWIDTH_8B,
@@ -39,7 +37,7 @@ const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
         .clock = LL_APB2_GRP1_PERIPH_USART1,
         .enable_clock = LL_APB2_GRP1_EnableClock
     },
-    [eUart2] = {
+    [eUartDriverPort_Uart2] = {
         .port = USART2,
         .baudrate = 115200,
         .datawidth = LL_USART_DATAWIDTH_8B,
@@ -52,7 +50,6 @@ const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
         .enable_clock = LL_APB1_GRP1_EnableClock
     }
 };
-//can create another lut maybe
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
@@ -82,7 +79,7 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     }
     LL_USART_InitTypeDef usart_init_struct = {0};
     static_uart_lut[port].enable_clock(static_uart_lut[port].clock);
-    usart_init_struct.BaudRate = baud_rate;
+    usart_init_struct.BaudRate = (baud_rate == 0) ? static_uart_lut[port].baudrate : baud_rate;
     usart_init_struct.DataWidth = static_uart_lut[port].datawidth;
     usart_init_struct.StopBits = static_uart_lut[port].stopbits;
     usart_init_struct.Parity = static_uart_lut[port].parity;
@@ -94,6 +91,9 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     }
     LL_USART_ConfigAsyncMode(static_uart_lut[port].port);
     LL_USART_Enable(static_uart_lut[port].port);
+    if (LL_USART_IsEnabled(static_uart_lut[port].port) == false) {
+        return false;
+    }
     return true;
 }
 bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
@@ -115,4 +115,3 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     }
     return true;
 }
-
