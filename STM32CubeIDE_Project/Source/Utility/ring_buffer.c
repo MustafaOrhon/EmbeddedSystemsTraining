@@ -35,8 +35,12 @@
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
+//input only capacity
+//remove element size
+//Can return handle of ringbuffer allocated struct
+//return pointer to ring buffer object
 bool GenericRingBuffer_Init (sGenericRingBuffer_t *ringBuffer, size_t element_size, size_t capacity) {
-    ringBuffer->buffer = malloc(capacity * element_size);
+    ringBuffer->buffer = malloc(capacity * element_size); //Search on calloc vs malloc differences
     if (ringBuffer->buffer == NULL) {
         return false;
     }
@@ -51,8 +55,8 @@ bool GenericRingBuffer_Write (sGenericRingBuffer_t *ringBuffer, const void *data
     if (ringBuffer->count == ringBuffer->capacity) {
         return false;
     }
-    size_t index = ringBuffer->head * ringBuffer->element_size;
-    memcpy((char*) ringBuffer->buffer + index, data, ringBuffer->element_size);
+    size_t index = ringBuffer->head * ringBuffer->element_size;//try to not to use stdlib functions as possible
+    memcpy((char*) ringBuffer->buffer + index, data, ringBuffer->element_size);//we will remove element size so not use
     ringBuffer->head = (ringBuffer->head + 1) % ringBuffer->capacity;
     ringBuffer->count++;
     return true;

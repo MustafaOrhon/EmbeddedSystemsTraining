@@ -10,6 +10,7 @@
  *********************************************************************************************************************/
 #define UART_RX_RING_BUFFER_SIZE 128
 static sGenericRingBuffer_t uart_rx_ring_buffer; // CAN BE IMPLEMENTED TO UART STRUCT??
+// Should be separate buffer for every uart
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -55,6 +56,7 @@ const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
         .enable_clock = LL_APB1_GRP1_EnableClock
     }
 };
+//Can use dynamic LUT in runtime
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
@@ -99,11 +101,11 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     if (LL_USART_IsEnabled(static_uart_lut[port].port) == 0) {
         return false;
     }
-
+        //put variables to static
     //NEEDS FIX!!!!
     if (port == eUartDriverPort_Uart1) {
         LL_USART_EnableIT_RXNE(USART1);
-        NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0)); //Can be higher than RTOS tick prio NEED CHECK
         NVIC_EnableIRQ(USART1_IRQn);
     } else if (port == eUartDriverPort_Uart2) {
 
@@ -132,6 +134,7 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     }
     return true;
 }
+//If code is repeating u can make another function or make it universal somehow between this IRQHandlers!!!
 void USART1_IRQHandler (void) {
     if (LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)) {
         uint8_t data = LL_USART_ReceiveData8(USART1);
@@ -139,6 +142,13 @@ void USART1_IRQHandler (void) {
     }
     // Additional USART1 interrupt handling as needed
 }
+void USART2_IRQHandler (void) {
+    if (LL_USART_IsActiveFlag_RXNE(USART2) && LL_USART_IsEnabledIT_RXNE(USART2)) {
+        uint8_t data = LL_USART_ReceiveData8(USART2);
+        GenericRingBuffer_Write(&uart_rx_ring_buffer, &data);
+    }
+}
+//Needs to two input which uart and also where to put that byte
 bool UART_Driver_ReadByte (uint8_t *byte) {
     return GenericRingBuffer_Read(&uart_rx_ring_buffer, byte);
 }
