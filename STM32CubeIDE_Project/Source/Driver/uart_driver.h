@@ -4,8 +4,6 @@
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
-#include "stm32f4xx_ll_bus.h"
-#include "stm32f4xx_ll_usart.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -27,6 +25,6 @@ typedef enum {
  * Prototypes of exported functions
  *********************************************************************************************************************/
 bool UART_Driver_Init(eUartPortEnum_t port, uint32_t baudRate);
-void UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
-void UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t* bytes, uint32_t size);
+bool UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
+bool UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t* bytes, uint32_t size);
 #endif /* __UART_DRIVER__H__ */

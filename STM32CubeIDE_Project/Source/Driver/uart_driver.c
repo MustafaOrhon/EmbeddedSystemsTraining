@@ -1,6 +1,8 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_usart.h"
 #include <uart_driver.h>
 /**********************************************************************************************************************
  * Private definitions and macros
@@ -10,7 +12,6 @@
  * Private typedef
  *********************************************************************************************************************/
 typedef void (*EnableClock_t)(uint32_t periph);
-
 //separate .h for ring buffer struct!!!
 typedef struct {
     USART_TypeDef   *port;
@@ -75,14 +76,12 @@ const static sUartConfig_t static_uart_lut[eUartDriverPort_Last] = {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-
 bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
-    if (port < eUartDriverPort_First || port >= eUartDriverPort_Last) {
+    if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
     LL_USART_InitTypeDef usart_init_struct = {0};
     static_uart_lut[port].enable_clock(static_uart_lut[port].clock);
-
     usart_init_struct.BaudRate = baud_rate;
     usart_init_struct.DataWidth = static_uart_lut[port].datawidth;
     usart_init_struct.StopBits = static_uart_lut[port].stopbits;
@@ -97,15 +96,23 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     LL_USART_Enable(static_uart_lut[port].port);
     return true;
 }
-
-void UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte) {  //how to return bool ask
-    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port)); //check port numbers
-    LL_USART_TransmitData8(static_uart_lut[port].port, byte);
-}
-
-void UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t *bytes, uint32_t size) {
-    for (uint32_t i = 0; i < size; i++) { //check port numbers,bytes null,size check
-        UART_Driver_SendByte(port, bytes[i]);
+bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
+    if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
+        return false;
     }
+    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port));
+    LL_USART_TransmitData8(static_uart_lut[port].port, byte);
+    return true;
+}
+bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, uint32_t size) {
+    if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last) || (bytes == NULL) || (size == 0)) {
+        return false;
+    }
+    for (uint32_t i = 0; i < size; i++) {
+        if (UART_Driver_SendByte(port, bytes[i]) == false) {
+            return false;
+        }
+    }
+    return true;
 }
 
