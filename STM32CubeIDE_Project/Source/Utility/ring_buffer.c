@@ -1,7 +1,6 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <string.h>
 #include <stdlib.h>
 #include "ring_buffer.h"
 /**********************************************************************************************************************
@@ -35,39 +34,34 @@
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-//input only capacity
-//remove element size
-//Can return handle of ringbuffer allocated struct
-//return pointer to ring buffer object
-bool GenericRingBuffer_Init (sGenericRingBuffer_t *ringBuffer, size_t element_size, size_t capacity) {
-    ringBuffer->buffer = malloc(capacity * element_size); //Search on calloc vs malloc differences
-    if (ringBuffer->buffer == NULL) {
+sRingBuffer_t* Ring_Buffer_Init (size_t capacity) {
+    sRingBuffer_t *ring_buffer = (sRingBuffer_t*) calloc(1, sizeof(sRingBuffer_t));
+    if (ring_buffer == NULL) {
+        return NULL;
+    }
+    ring_buffer->buffer = (uint8_t*) calloc(capacity, sizeof(uint8_t));
+    if (ring_buffer->buffer == NULL) {
+        free(ring_buffer);
+        return NULL;
+    }
+    ring_buffer->capacity = capacity;
+    return ring_buffer;
+}
+bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
+    if (ring_buffer->count == ring_buffer->capacity) {
         return false;
     }
-    ringBuffer->element_size = element_size;
-    ringBuffer->capacity = capacity;
-    ringBuffer->head = 0;
-    ringBuffer->tail = 0;
-    ringBuffer->count = 0;
+    ring_buffer->buffer[ring_buffer->head] = data;
+    ring_buffer->head = (ring_buffer->head + 1) % ring_buffer->capacity;
+    ring_buffer->count++;
     return true;
 }
-bool GenericRingBuffer_Write (sGenericRingBuffer_t *ringBuffer, const void *data) {
-    if (ringBuffer->count == ringBuffer->capacity) {
+bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data) {
+    if (ring_buffer->count == 0) {
         return false;
     }
-    size_t index = ringBuffer->head * ringBuffer->element_size;//try to not to use stdlib functions as possible
-    memcpy((char*) ringBuffer->buffer + index, data, ringBuffer->element_size);//we will remove element size so not use
-    ringBuffer->head = (ringBuffer->head + 1) % ringBuffer->capacity;
-    ringBuffer->count++;
-    return true;
-}
-bool GenericRingBuffer_Read (sGenericRingBuffer_t *ringBuffer, void *data) {
-    if (ringBuffer->count == 0) {
-        return false;
-    }
-    size_t index = ringBuffer->tail * ringBuffer->element_size;
-    memcpy(data, (char*) ringBuffer->buffer + index, ringBuffer->element_size);
-    ringBuffer->tail = (ringBuffer->tail + 1) % ringBuffer->capacity;
-    ringBuffer->count--;
+    *data = ring_buffer->buffer[ring_buffer->tail];
+    ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
+    ring_buffer->count--;
     return true;
 }
