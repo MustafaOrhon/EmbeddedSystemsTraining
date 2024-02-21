@@ -85,11 +85,6 @@ static void TIM13_Init(void){
     LL_TIM_Init(TIM13,&LL_TIM_InitStruct);
     LL_TIM_DisableARRPreload(TIM13);
 }
-void delay(volatile int count) {
-    while (count--) {
-    }
-}
-const char* myString = "Teltonika academy!\n";
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
@@ -97,20 +92,10 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-
-    SystemClock_Config(); /* Configure the system clock*/
-
-    TIM13_Init(); /*Initialize TIM13*/
-    GPIO_Driver_Init();
-
-    UART_Driver_Init(eUartDriverPort_Uart1,115200);
-
-    // osKernelInitialize(); /*Initialize the RTOS Kernelr*/
-    //osKernelStart(); /*Start the RTOS Kernel*/
+    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
+    osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
 
-        UART_Driver_SendMultipleBytes(eUartDriverPort_Uart1, (const uint8_t*)myString, strlen(myString));
-        delay(12000000);
     }
 }
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {

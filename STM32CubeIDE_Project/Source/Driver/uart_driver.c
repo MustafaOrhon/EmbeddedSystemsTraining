@@ -99,7 +99,7 @@ bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
-    while (!LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port)) {};
+    while (LL_USART_IsActiveFlag_TXE(static_uart_lut[port].port) == 0) {};
     LL_USART_TransmitData8(static_uart_lut[port].port, byte);
     return true;
 }
@@ -107,7 +107,7 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last) || (bytes == NULL) || (size == 0)) {
         return false;
     }
-    for (uint32_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         if (UART_Driver_SendByte(port, bytes[i]) == false) {
             return false;
         }
