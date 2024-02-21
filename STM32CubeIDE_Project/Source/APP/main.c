@@ -90,6 +90,7 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
+    GPIO_Driver_Init();
     UART_Driver_Init(eUartDriverPort_Uart1,115200);
     uint8_t byteReceived;
 

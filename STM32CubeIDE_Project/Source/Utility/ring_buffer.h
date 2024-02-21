@@ -5,6 +5,7 @@
  *********************************************************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -27,6 +28,6 @@ typedef struct {
  * Prototypes of exported functions
  *********************************************************************************************************************/
 sRingBuffer_t* Ring_Buffer_Init (size_t capacity);
-bool Ring_Buffer_Write (sRingBuffer_t *ringBuffer, uint8_t data);
-bool Ring_Buffer_Read (sRingBuffer_t *ringBuffer, uint8_t *data);
+bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data);
+bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data);
 #endif /* SOURCE_UTILITY_RING_BUFFER_H_ */
