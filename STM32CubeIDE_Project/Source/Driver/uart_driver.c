@@ -1,7 +1,6 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdlib.h>
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_usart.h"
 #include "ring_buffer.h"
@@ -9,7 +8,7 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define UART_RX_RING_BUFFER_SIZE 128
+#define UART_RX_RING_BUFFER_SIZE 64
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -72,11 +71,11 @@ static sUartDynamicConfig_t g_uart_dynamic_lut[eUartDriverPort_Last];
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
-static void UniversalUsartIRQHandler(eUartPortEnum_t port);
+static void UART_IRQHandler(eUartPortEnum_t port);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-static void UniversalUsartIRQHandler(eUartPortEnum_t port) {
+static void UART_IRQHandler (eUartPortEnum_t port) {
     if (g_uart_static_lut[port].port && g_uart_dynamic_lut[port].rx_ring_buffer) {
         if (LL_USART_IsActiveFlag_RXNE(g_uart_static_lut[port].port) && LL_USART_IsEnabledIT_RXNE(g_uart_static_lut[port].port)) {
             uint8_t data = LL_USART_ReceiveData8(g_uart_static_lut[port].port);
@@ -84,13 +83,11 @@ static void UniversalUsartIRQHandler(eUartPortEnum_t port) {
         }
     }
 }
-
-
-void USART1_IRQHandler(void) {
-    UniversalUsartIRQHandler(eUartDriverPort_Uart1);
+void USART1_IRQHandler (void) {
+    UART_IRQHandler(eUartDriverPort_Uart1);
 }
-void USART2_IRQHandler(void) {
-    UniversalUsartIRQHandler(eUartDriverPort_Uart2);
+void USART2_IRQHandler (void) {
+    UART_IRQHandler(eUartDriverPort_Uart2);
 }
 /**********************************************************************************************************************
  * Definitions of exported functions
@@ -116,11 +113,11 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
         return false;
     }
     LL_USART_ConfigAsyncMode(g_uart_static_lut[port].port);
+    LL_USART_EnableIT_RXNE(g_uart_static_lut[port].port);
     LL_USART_Enable(g_uart_static_lut[port].port);
     if (LL_USART_IsEnabled(g_uart_static_lut[port].port) == false) {
         return false;
     }
-    LL_USART_EnableIT_RXNE(g_uart_static_lut[port].port);
     NVIC_SetPriority(g_uart_static_lut[port].irq_number, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(g_uart_static_lut[port].irq_number);
     return true;
@@ -153,4 +150,3 @@ bool UART_Driver_ReadByte (eUartPortEnum_t port, uint8_t *byte) {
     }
     return Ring_Buffer_Read(g_uart_dynamic_lut[port].rx_ring_buffer, byte);
 }
-

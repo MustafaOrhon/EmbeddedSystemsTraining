@@ -13,11 +13,11 @@
  * Exported types
  *********************************************************************************************************************/
 typedef struct {
-    uint8_t* buffer;     // Pointer to the buffer holding the data
-    size_t capacity;     // Maximum number of elements in the buffer
-    volatile size_t head;    // Index of the head in the buffer
-    volatile size_t tail;    // Index of the tail in the buffer
-    size_t count;        // Number of elements currently in the buffer
+    uint8_t* buffer;
+    size_t capacity;
+    volatile size_t head;
+    volatile size_t tail;
+    size_t count;
 } sRingBuffer_t;
 /**********************************************************************************************************************
  * Exported variables
