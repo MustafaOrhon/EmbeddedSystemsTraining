@@ -104,7 +104,48 @@ const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
         .pin_speed = LL_GPIO_SPEED_FREQ_LOW,
         .pin_af_mode = LL_GPIO_AF_0,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOG
+    },
+    [eGpioDriverPin_DebugTxPin] = {
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_6,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOB
+    },
+    [eGpioDriverPin_DebugRxPin] = {
+        .port = GPIOB,
+        .pin_number = LL_GPIO_PIN_7,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOB
+    },
+    [eGpioDriverPin_ModemUartRxPin] = {
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_6,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOD
+    },
+    [eGpioDriverPin_ModemUartTxPin] = {
+        .port = GPIOD,
+        .pin_number = LL_GPIO_PIN_5,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_7,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOD
     }
+
 };
 /**********************************************************************************************************************
  * Private variables
@@ -143,7 +184,6 @@ bool GPIO_Driver_Init (void) {
     }
     return init_success;
 }
-
 bool GPIO_Driver_WritePin (eGpioDriverPin_t pin_name, bool pin_state) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
         return false;
@@ -158,7 +198,6 @@ bool GPIO_Driver_WritePin (eGpioDriverPin_t pin_name, bool pin_state) {
     }
     return true;
 }
-
 bool GPIO_Driver_ReadPin (eGpioDriverPin_t pin_name, bool *is_pin_set) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last) || (is_pin_set == NULL)) {
         return false;
@@ -171,7 +210,6 @@ bool GPIO_Driver_ReadPin (eGpioDriverPin_t pin_name, bool *is_pin_set) {
     }
     return true;
 }
-
 bool GPIO_Driver_TogglePin (eGpioDriverPin_t pin_name) {
     if ((pin_name < eGpioDriverPin_First) || (pin_name >= eGpioDriverPin_Last)) {
         return false;

@@ -3,12 +3,13 @@
  *********************************************************************************************************************/
 #include "cmsis_os.h"
 #include "stm32f4xx_ll_rcc.h"
+#include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
-#include "stm32f4xx_ll_usart.h"
-#include "usart.h"
+#include "stm32f4xx_ll_tim.h"
 #include "gpio_driver.h"
+#include "uart_driver.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -89,10 +90,11 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-
-    osKernelInitialize();
-    osKernelStart();
+    UART_Driver_Init(eUartDriverPort_Uart1,115200);
+    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
+    osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
+
     }
 }
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
