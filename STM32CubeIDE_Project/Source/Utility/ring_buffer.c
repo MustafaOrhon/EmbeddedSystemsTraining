@@ -47,6 +47,7 @@ sRingBuffer_t* Ring_Buffer_Init (size_t capacity) {
     ring_buffer->capacity = capacity;
     return ring_buffer;
 }
+
 bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
     if (ring_buffer->count == ring_buffer->capacity) {
         return false;
@@ -56,6 +57,7 @@ bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
     ring_buffer->count++;
     return true;
 }
+
 bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data) {
     if (ring_buffer->count == 0) {
         return false;
