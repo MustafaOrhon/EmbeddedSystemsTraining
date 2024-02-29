@@ -10,6 +10,8 @@
  *********************************************************************************************************************/
 #define UART_DRIVER_PREEMPT_PRIORITY    5
 #define UART_DRIVER_SUB_PRIORITY        0
+#define UART1_RING_BUFFER_SIZE          32
+#define UART2_RING_BUFFER_SIZE          1024
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -27,7 +29,7 @@ typedef struct {
     size_t          ring_buffer_size;
     IRQn_Type       irq_number;
     EnableClock_t   enable_clock;
-} sUartStaticConfig_t;
+} sUartStaticDesc_t;
 
 typedef struct {
     sRingBuffer_t*  rx_ring_buffer;
@@ -35,7 +37,7 @@ typedef struct {
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
+static const sUartStaticDesc_t g_uart_static_lut[eUartDriverPort_Last] = {
     [eUartDriverPort_Uart1] = {
         .port = USART1,
         .baudrate = 115200,
@@ -46,7 +48,7 @@ static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
         .hardware_flow_control = LL_USART_HWCONTROL_NONE,
         .oversampling = LL_USART_OVERSAMPLING_16,
         .clock = LL_APB2_GRP1_PERIPH_USART1,
-        .ring_buffer_size = 32,
+        .ring_buffer_size = UART1_RING_BUFFER_SIZE,
         .irq_number = USART1_IRQn,
         .enable_clock = LL_APB2_GRP1_EnableClock,
     },
@@ -60,7 +62,7 @@ static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
         .hardware_flow_control = LL_USART_HWCONTROL_NONE,
         .oversampling = LL_USART_OVERSAMPLING_16,
         .clock = LL_APB1_GRP1_PERIPH_USART2,
-        .ring_buffer_size = 1024,
+        .ring_buffer_size = UART2_RING_BUFFER_SIZE,
         .irq_number = USART2_IRQn,
         .enable_clock = LL_APB1_GRP1_EnableClock,
     }
@@ -127,6 +129,7 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     NVIC_EnableIRQ(g_uart_static_lut[port].irq_number);
     return true;
 }
+
 bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
@@ -135,6 +138,7 @@ bool UART_Driver_SendByte (eUartPortEnum_t port, uint8_t byte) {
     LL_USART_TransmitData8(g_uart_static_lut[port].port, byte);
     return true;
 }
+
 bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, size_t size) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last) || (bytes == NULL) || (size == 0)) {
         return false;
@@ -146,6 +150,7 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     }
     return true;
 }
+
 bool UART_Driver_ReadByte (eUartPortEnum_t port, uint8_t *byte) {
     if ((byte == NULL) || (port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
