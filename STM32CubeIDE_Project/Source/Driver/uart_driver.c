@@ -8,7 +8,8 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define UART_RX_RING_BUFFER_SIZE 64
+#define UART_DRIVER_PREEMPT_PRIORITY    5
+#define UART_DRIVER_SUB_PRIORITY        0
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -23,12 +24,14 @@ typedef struct {
     uint32_t        hardware_flow_control;
     uint32_t        oversampling;
     uint32_t        clock;
+    size_t          ring_buffer_size;
     IRQn_Type       irq_number;
     EnableClock_t   enable_clock;
 } sUartStaticConfig_t;
+
 typedef struct {
     sRingBuffer_t*  rx_ring_buffer;
-} sUartDynamicConfig_t;
+} sUartDynamicDesc_t;
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
@@ -43,6 +46,7 @@ static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
         .hardware_flow_control = LL_USART_HWCONTROL_NONE,
         .oversampling = LL_USART_OVERSAMPLING_16,
         .clock = LL_APB2_GRP1_PERIPH_USART1,
+        .ring_buffer_size = 32,
         .irq_number = USART1_IRQn,
         .enable_clock = LL_APB2_GRP1_EnableClock,
     },
@@ -56,6 +60,7 @@ static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
         .hardware_flow_control = LL_USART_HWCONTROL_NONE,
         .oversampling = LL_USART_OVERSAMPLING_16,
         .clock = LL_APB1_GRP1_PERIPH_USART2,
+        .ring_buffer_size = 1024,
         .irq_number = USART2_IRQn,
         .enable_clock = LL_APB1_GRP1_EnableClock,
     }
@@ -63,7 +68,7 @@ static const sUartStaticConfig_t g_uart_static_lut[eUartDriverPort_Last] = {
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-static sUartDynamicConfig_t g_uart_dynamic_lut[eUartDriverPort_Last];
+static sUartDynamicDesc_t g_uart_dynamic_lut[eUartDriverPort_Last];
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -71,11 +76,11 @@ static sUartDynamicConfig_t g_uart_dynamic_lut[eUartDriverPort_Last];
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
-static void UART_IRQHandler(eUartPortEnum_t port);
+static void UART_Driver_IRQHandler(eUartPortEnum_t port);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-static void UART_IRQHandler (eUartPortEnum_t port) {
+static void UART_Driver_IRQHandler (eUartPortEnum_t port) {
     if (g_uart_static_lut[port].port && g_uart_dynamic_lut[port].rx_ring_buffer) {
         if (LL_USART_IsActiveFlag_RXNE(g_uart_static_lut[port].port) && LL_USART_IsEnabledIT_RXNE(g_uart_static_lut[port].port)) {
             uint8_t data = LL_USART_ReceiveData8(g_uart_static_lut[port].port);
@@ -84,10 +89,10 @@ static void UART_IRQHandler (eUartPortEnum_t port) {
     }
 }
 void USART1_IRQHandler (void) {
-    UART_IRQHandler(eUartDriverPort_Uart1);
+    UART_Driver_IRQHandler(eUartDriverPort_Uart1);
 }
 void USART2_IRQHandler (void) {
-    UART_IRQHandler(eUartDriverPort_Uart2);
+    UART_Driver_IRQHandler(eUartDriverPort_Uart2);
 }
 /**********************************************************************************************************************
  * Definitions of exported functions
@@ -96,7 +101,7 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
-    g_uart_dynamic_lut[port].rx_ring_buffer = Ring_Buffer_Init(UART_RX_RING_BUFFER_SIZE);
+    g_uart_dynamic_lut[port].rx_ring_buffer = Ring_Buffer_Init(g_uart_static_lut[port].ring_buffer_size);
     if (g_uart_dynamic_lut[port].rx_ring_buffer == NULL) {
         return false;
     }
@@ -118,7 +123,7 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     if (LL_USART_IsEnabled(g_uart_static_lut[port].port) == false) {
         return false;
     }
-    NVIC_SetPriority(g_uart_static_lut[port].irq_number, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+    NVIC_SetPriority(g_uart_static_lut[port].irq_number, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), UART_DRIVER_PREEMPT_PRIORITY, UART_DRIVER_SUB_PRIORITY));
     NVIC_EnableIRQ(g_uart_static_lut[port].irq_number);
     return true;
 }
@@ -142,7 +147,7 @@ bool UART_Driver_SendMultipleBytes (eUartPortEnum_t port, const uint8_t *bytes, 
     return true;
 }
 bool UART_Driver_ReadByte (eUartPortEnum_t port, uint8_t *byte) {
-    if (byte == NULL || port < eUartDriverPort_First || port >= eUartDriverPort_Last) {
+    if ((byte == NULL) || (port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
     if (g_uart_dynamic_lut[port].rx_ring_buffer == NULL) {

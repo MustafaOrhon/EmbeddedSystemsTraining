@@ -90,18 +90,11 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-    GPIO_Driver_Init();
-    UART_Driver_Init(eUartDriverPort_Uart1,115200);
-    uint8_t byteReceived;
 
-    // osKernelInitialize(); /*Initialize the RTOS Kernelr*/
-    //osKernelStart(); /*Start the RTOS Kernel*/
+    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
+    osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {
-        // Try to read a byte from UART1
-        if (UART_Driver_ReadByte(eUartDriverPort_Uart1, &byteReceived)) {
-            // If a byte was successfully read, echo it back
-            UART_Driver_SendByte(eUartDriverPort_Uart1, byteReceived);
-        }
+
     }
 }
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
