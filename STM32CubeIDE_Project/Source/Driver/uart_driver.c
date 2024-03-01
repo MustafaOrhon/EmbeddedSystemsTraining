@@ -83,7 +83,7 @@ static void UART_Driver_IRQHandler(eUartPortEnum_t port);
  * Definitions of private functions
  *********************************************************************************************************************/
 static void UART_Driver_IRQHandler (eUartPortEnum_t port) {
-    if (g_uart_static_lut[port].port && g_uart_dynamic_lut[port].rx_ring_buffer) {
+    if ((g_uart_static_lut[port].port != NULL) && (g_uart_dynamic_lut[port].rx_ring_buffer != NULL)) {
         if (LL_USART_IsActiveFlag_RXNE(g_uart_static_lut[port].port) && LL_USART_IsEnabledIT_RXNE(g_uart_static_lut[port].port)) {
             uint8_t data = LL_USART_ReceiveData8(g_uart_static_lut[port].port);
             Ring_Buffer_Write(g_uart_dynamic_lut[port].rx_ring_buffer, data);
@@ -103,10 +103,6 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     if ((port < eUartDriverPort_First) || (port >= eUartDriverPort_Last)) {
         return false;
     }
-    g_uart_dynamic_lut[port].rx_ring_buffer = Ring_Buffer_Init(g_uart_static_lut[port].ring_buffer_size);
-    if (g_uart_dynamic_lut[port].rx_ring_buffer == NULL) {
-        return false;
-    }
     LL_USART_InitTypeDef usart_init_struct = {0};
     g_uart_static_lut[port].enable_clock(g_uart_static_lut[port].clock);
     usart_init_struct.BaudRate = (baud_rate == 0) ? g_uart_static_lut[port].baudrate : baud_rate;
@@ -121,6 +117,10 @@ bool UART_Driver_Init (eUartPortEnum_t port, uint32_t baud_rate) {
     }
     LL_USART_ConfigAsyncMode(g_uart_static_lut[port].port);
     LL_USART_EnableIT_RXNE(g_uart_static_lut[port].port);
+    g_uart_dynamic_lut[port].rx_ring_buffer = Ring_Buffer_Init(g_uart_static_lut[port].ring_buffer_size);
+    if (g_uart_dynamic_lut[port].rx_ring_buffer == NULL) {
+        return false;
+    }
     LL_USART_Enable(g_uart_static_lut[port].port);
     if (LL_USART_IsEnabled(g_uart_static_lut[port].port) == false) {
         return false;

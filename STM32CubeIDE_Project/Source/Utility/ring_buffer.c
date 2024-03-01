@@ -34,12 +34,12 @@
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-sRingBuffer_t* Ring_Buffer_Init (size_t capacity) {
-    sRingBuffer_t *ring_buffer = (sRingBuffer_t*) calloc(1, sizeof(sRingBuffer_t));
+sRingBuffer_t *Ring_Buffer_Init (size_t capacity) {
+    sRingBuffer_t *ring_buffer = (sRingBuffer_t *)calloc(1, sizeof(sRingBuffer_t));
     if (ring_buffer == NULL) {
         return NULL;
     }
-    ring_buffer->buffer = (uint8_t*) calloc(capacity, sizeof(uint8_t));
+    ring_buffer->buffer = (uint8_t *)calloc(capacity, sizeof(uint8_t));
     if (ring_buffer->buffer == NULL) {
         free(ring_buffer);
         return NULL;
@@ -48,13 +48,15 @@ sRingBuffer_t* Ring_Buffer_Init (size_t capacity) {
     return ring_buffer;
 }
 
-bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
+bool Ring_Buffer_Write(sRingBuffer_t *ring_buffer, uint8_t data) {
     if (ring_buffer->count == ring_buffer->capacity) {
-        return false;
+        ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
     }
     ring_buffer->buffer[ring_buffer->head] = data;
     ring_buffer->head = (ring_buffer->head + 1) % ring_buffer->capacity;
-    ring_buffer->count++;
+    if (ring_buffer->count < ring_buffer->capacity) {
+        ring_buffer->count++;
+    }
     return true;
 }
 
