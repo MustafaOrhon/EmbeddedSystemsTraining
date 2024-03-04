@@ -52,6 +52,9 @@ sRingBuffer_t *Ring_Buffer_Init (size_t capacity) {
 }
 
 bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
+    if (ring_buffer == NULL) {
+        return false;
+    }
     if (ring_buffer->count == ring_buffer->capacity) {
         ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
     }
@@ -64,9 +67,12 @@ bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
 }
 
 bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data) {
-    if ((ring_buffer->count == 0) || (data == NULL)) {
-        return false;
-    }
+    if ((ring_buffer == NULL) || (data == NULL)) {
+            return false;
+        }
+        if (ring_buffer->count == 0) {
+            return false;
+        }
     *data = ring_buffer->buffer[ring_buffer->tail];
     ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
     ring_buffer->count--;
