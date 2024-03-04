@@ -90,7 +90,7 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-    UART_Driver_Init(eUartDriverPort_Uart1,115200);
+
     osKernelInitialize(); /*Initialize the RTOS Kernelr*/
     osKernelStart(); /*Start the RTOS Kernel*/
     while (1) {

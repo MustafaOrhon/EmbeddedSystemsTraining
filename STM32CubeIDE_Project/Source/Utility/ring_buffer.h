@@ -1,24 +1,25 @@
-#ifndef __UART_DRIVER__H__
-#define __UART_DRIVER__H__
+#ifndef SOURCE_UTILITY_RING_BUFFER_H_
+#define SOURCE_UTILITY_RING_BUFFER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <stddef.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eUartDriverPort_First = 0,
-    eUartDriverPort_Uart1 = eUartDriverPort_First,
-    eUartDriverPort_Uart2,
-    eUartDriverPort_Last,
-} eUartPortEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-
+typedef struct {
+    uint8_t* buffer;
+    size_t capacity;
+    volatile size_t head;
+    volatile size_t tail;
+    size_t count;
+} sRingBuffer_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -26,8 +27,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool UART_Driver_Init(eUartPortEnum_t port, uint32_t baud_rate);
-bool UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
-bool UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t *bytes, size_t size);
-bool UART_Driver_ReadByte(eUartPortEnum_t port, uint8_t *byte);
-#endif /* __UART_DRIVER__H__ */
+sRingBuffer_t *Ring_Buffer_Init(size_t capacity);
+bool Ring_Buffer_Write(sRingBuffer_t *ring_buffer, uint8_t data);
+bool Ring_Buffer_Read(sRingBuffer_t *ring_buffer, uint8_t *data);
+#endif /* SOURCE_UTILITY_RING_BUFFER_H_ */
