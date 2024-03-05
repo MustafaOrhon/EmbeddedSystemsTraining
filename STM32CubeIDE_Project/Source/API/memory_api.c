@@ -14,7 +14,7 @@
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const osMutexAttr_t mem_mutex_attr = {
+static const osMutexAttr_t g_mem_mutex_attr = {
     "Memory Mutex",
     osMutexRecursive,
     NULL,
@@ -23,8 +23,8 @@ static const osMutexAttr_t mem_mutex_attr = {
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-static int32_t mem_alloc_counter = 0;
-static osMutexId_t mem_mutex_id = NULL;
+static int32_t g_mem_alloc_counter = 0;
+static osMutexId_t g_mem_mutex_id = NULL;
 static bool g_kernel_running = false;
 /**********************************************************************************************************************
  * Exported variables and references
@@ -45,8 +45,8 @@ bool Memory_API_Init (void) {
     if (osKernelGetState() == osKernelInactive) {
         return false;
     }
-    mem_mutex_id = osMutexNew(&mem_mutex_attr);
-    if (mem_mutex_id == NULL) {
+    g_mem_mutex_id = osMutexNew(&g_mem_mutex_attr);
+    if (g_mem_mutex_id == NULL) {
         return false;
     }
     return true;
@@ -66,19 +66,15 @@ void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
     if ((count == 0) || (size == 0)) {
         return NULL;
     }
-    if (osMutexAcquire(mem_mutex_id, osWaitForever) != osOK) {
+    if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
         return NULL;
     }
     void *ptr = NULL;
-    if (is_calloc == true) {
-        ptr = calloc(count, size);
-    } else {
-        ptr = malloc(size);
-    }
+    ptr = is_calloc ? calloc(count, size) : malloc(size);
     if (ptr != NULL) {
-        mem_alloc_counter++;
+        g_mem_alloc_counter++;
     }
-    if (osMutexRelease(mem_mutex_id) != osOK) {
+    if (osMutexRelease(g_mem_mutex_id) != osOK) {
         return NULL;
     }
     return ptr;
@@ -91,26 +87,19 @@ void Memory_API_Free (void *ptr) {
     if (ptr == NULL) {
         return;
     }
-    if (osMutexAcquire(mem_mutex_id, osWaitForever) != osOK) {
+    if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
         return;
     }
     free(ptr);
-    mem_alloc_counter--;
-    if (osMutexRelease(mem_mutex_id) != osOK) {
+    g_mem_alloc_counter--;
+    if (osMutexRelease(g_mem_mutex_id) != osOK) {
         return;
     }
 }
 
 int32_t Memory_API_GetAllocCounter (void) {
-    if ((g_kernel_running == false) || (osThreadGetId() == NULL)) {
-        return -1;
+    if (g_kernel_running == true) {
+        return g_mem_alloc_counter;
     }
-    if (osMutexAcquire(mem_mutex_id, osWaitForever) != osOK) {
-        return -1;
-    }
-    int32_t current_count = mem_alloc_counter;
-    if (osMutexRelease(mem_mutex_id) != osOK) {
-        return -1;
-    }
-    return current_count;
+    return -1;
 }
