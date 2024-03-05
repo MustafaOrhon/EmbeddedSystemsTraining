@@ -98,8 +98,5 @@ void Memory_API_Free (void *ptr) {
 }
 
 int32_t Memory_API_GetAllocCounter (void) {
-    if (g_kernel_running == true) {
-        return g_mem_alloc_counter;
-    }
-    return -1;
+    return g_mem_alloc_counter;
 }
