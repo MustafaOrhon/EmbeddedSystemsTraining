@@ -25,6 +25,7 @@ static const osMutexAttr_t mem_mutex_attr = {
  *********************************************************************************************************************/
 static int32_t mem_alloc_counter = 0;
 static osMutexId_t mem_mutex_id = NULL;
+static bool g_kernel_running = false;
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -52,8 +53,14 @@ bool Memory_API_Init (void) {
 }
 
 void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
-    osKernelState_t kernel_state = osKernelGetState();
-    if ((kernel_state != osKernelReady) && (kernel_state != osKernelRunning)) {
+    if (g_kernel_running == false) {
+        osKernelState_t kernel_state = osKernelGetState();
+        if (kernel_state != osKernelRunning) {
+            return NULL;
+        }
+        g_kernel_running = true;
+    }
+    if (osThreadGetId() == NULL) {
         return NULL;
     }
     if ((count == 0) || (size == 0)) {
@@ -72,13 +79,16 @@ void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
         mem_alloc_counter++;
     }
     if (osMutexRelease(mem_mutex_id) != osOK) {
+        return NULL;
     }
     return ptr;
 }
 
 void Memory_API_Free (void *ptr) {
-    osKernelState_t kernel_state = osKernelGetState();
-    if ((kernel_state != osKernelReady) && (kernel_state != osKernelRunning)) {
+    if ((g_kernel_running == false) || (osThreadGetId() == NULL)) {
+        return;
+    }
+    if (ptr == NULL) {
         return;
     }
     if (osMutexAcquire(mem_mutex_id, osWaitForever) != osOK) {
@@ -87,13 +97,12 @@ void Memory_API_Free (void *ptr) {
     free(ptr);
     mem_alloc_counter--;
     if (osMutexRelease(mem_mutex_id) != osOK) {
-
+        return;
     }
 }
 
 int32_t Memory_API_GetAllocCounter (void) {
-    osKernelState_t kernel_state = osKernelGetState();
-    if ((kernel_state != osKernelReady) && (kernel_state != osKernelRunning)) {
+    if ((g_kernel_running == false) || (osThreadGetId() == NULL)) {
         return -1;
     }
     if (osMutexAcquire(mem_mutex_id, osWaitForever) != osOK) {
