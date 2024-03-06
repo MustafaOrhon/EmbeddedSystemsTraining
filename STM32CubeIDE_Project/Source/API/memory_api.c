@@ -2,24 +2,30 @@
  * Includes
  *********************************************************************************************************************/
 #include <stdlib.h>
+#include "cmsis_os.h"
 #include "memory_api.h"
-#include "ring_buffer.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
- 
+
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
- 
+static const osMutexAttr_t g_mem_mutex_attr = {
+    "Memory Mutex",
+    osMutexRecursive,
+    NULL,
+    0U
+};
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
- 
+static int32_t g_mem_alloc_counter = 0;
+static osMutexId_t g_mem_mutex_id = NULL;
+static bool g_kernel_running = false;
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -27,55 +33,70 @@
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
- 
+
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
- 
+
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-sRingBuffer_t *Ring_Buffer_Init (size_t capacity) {
-    if (capacity == 0) {
-        return NULL;
-    }
-    sRingBuffer_t *ring_buffer = (sRingBuffer_t *)Memory_API_Calloc(1, sizeof(sRingBuffer_t));
-    if (ring_buffer == NULL) {
-        return NULL;
-    }
-    ring_buffer->buffer = (uint8_t *)Memory_API_Calloc(capacity, sizeof(uint8_t));
-    if (ring_buffer->buffer == NULL) {
-        Memory_API_Free(ring_buffer);
-        return NULL;
-    }
-    ring_buffer->capacity = capacity;
-    return ring_buffer;
-}
-
-bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
-    if (ring_buffer == NULL) {
+bool Memory_API_Init (void) {
+    if (osKernelGetState() == osKernelInactive) {
         return false;
     }
-    if (ring_buffer->count == ring_buffer->capacity) {
-        ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
-    }
-    ring_buffer->buffer[ring_buffer->head] = data;
-    ring_buffer->head = (ring_buffer->head + 1) % ring_buffer->capacity;
-    if (ring_buffer->count < ring_buffer->capacity) {
-        ring_buffer->count++;
+    g_mem_mutex_id = osMutexNew(&g_mem_mutex_attr);
+    if (g_mem_mutex_id == NULL) {
+        return false;
     }
     return true;
 }
 
-bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data) {
-    if ((ring_buffer == NULL) || (data == NULL)) {
-        return false;
+void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
+    if (g_kernel_running == false) {
+        osKernelState_t kernel_state = osKernelGetState();
+        if (kernel_state != osKernelRunning) {
+            return NULL;
+        }
+        g_kernel_running = true;
     }
-    if (ring_buffer->count == 0) {
-        return false;
+    if (osThreadGetId() == NULL) {
+        return NULL;
     }
-    *data = ring_buffer->buffer[ring_buffer->tail];
-    ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
-    ring_buffer->count--;
-    return true;
+    if ((count == 0) || (size == 0)) {
+        return NULL;
+    }
+    if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
+        return NULL;
+    }
+    void *ptr = NULL;
+    ptr = is_calloc ? calloc(count, size) : malloc(size);
+    if (ptr != NULL) {
+        g_mem_alloc_counter++;
+    }
+    if (osMutexRelease(g_mem_mutex_id) != osOK) {
+        return NULL;
+    }
+    return ptr;
+}
+
+void Memory_API_Free (void *ptr) {
+    if ((g_kernel_running == false) || (osThreadGetId() == NULL)) {
+        return;
+    }
+    if (ptr == NULL) {
+        return;
+    }
+    if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
+        return;
+    }
+    free(ptr);
+    g_mem_alloc_counter--;
+    if (osMutexRelease(g_mem_mutex_id) != osOK) {
+        return;
+    }
+}
+
+int32_t Memory_API_GetAllocCounter (void) {
+    return g_mem_alloc_counter;
 }
