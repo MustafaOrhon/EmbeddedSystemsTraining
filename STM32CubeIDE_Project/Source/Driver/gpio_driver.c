@@ -24,7 +24,7 @@ typedef struct {
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-const static sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
+ static const sGpioConfig_t g_static_gpio_lut[eGpioDriverPin_Last] = {
     [eGpioDriverPin_ModemPowerOffPin] = {
         .port = GPIOE,
         .pin_number = LL_GPIO_PIN_1,

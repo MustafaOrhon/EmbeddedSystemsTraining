@@ -9,11 +9,13 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_tim.h"
 #include "gpio_driver.h"
-#include "uart_driver.h"
+#include "uart_api.h"
+#include "memory_api.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
+#define DEFAULT_UART1_DELIMITER          ("\r")
+#define DEFAULT_UART1_DELIMITER_LENGTH   (sizeof(char))
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -90,9 +92,21 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-
-    osKernelInitialize(); /*Initialize the RTOS Kernelr*/
-    osKernelStart(); /*Start the RTOS Kernel*/
+    if (GPIO_Driver_Init() == false) {
+        while(1);
+    }
+    if (osKernelInitialize() != osOK) {
+        while (1);
+    }
+    if (Memory_API_Init() == false) {
+        while(1);
+    }
+    if (UART_API_Init(eUartApiPort_Uart1, 115200, DEFAULT_UART1_DELIMITER, DEFAULT_UART1_DELIMITER_LENGTH) == false) {
+        while(1);
+    }
+    if (osKernelStart() != osOK) { /*Start the RTOS Kernel*/
+        while (1);
+    }
     while (1) {
 
     }
@@ -118,4 +132,3 @@ void TIM8_UP_TIM13_IRQHandler(void){
         LL_TIM_ClearFlag_UPDATE(TIM13);
     }
 }
-
