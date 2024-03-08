@@ -26,7 +26,6 @@ static const osMutexAttr_t g_mem_mutex_attr = {
  *********************************************************************************************************************/
 static int32_t g_mem_alloc_counter = 0;
 static osMutexId_t g_mem_mutex_id = NULL;
-static bool g_kernel_running = false;
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -57,13 +56,7 @@ void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
         return NULL;
     }
     if (osThreadGetId() != NULL) {
-        if (g_kernel_running == false) {
-            osKernelState_t kernel_state = osKernelGetState();
-            if (kernel_state != osKernelRunning) {
-                return NULL;
-            }
-            g_kernel_running = true;
-        }
+
         if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
             return NULL;
         }
@@ -82,7 +75,7 @@ void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
 }
 
 void Memory_API_Free (void *ptr) {
-    if ((g_kernel_running == false) || (ptr == NULL) || (IS_IRQ() == true)) {
+    if ((ptr == NULL) || (IS_IRQ() == true)) {
         return;
     }
     if (osThreadGetId() != NULL) {

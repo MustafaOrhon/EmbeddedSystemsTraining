@@ -183,6 +183,7 @@ static void UART_API_Thread (void *argument) {
                     g_uart_api_dynamic_lut[port].buffer = Memory_API_Calloc(g_uart_api_static_lut[port].max_message_size, sizeof(char));
                     g_uart_api_dynamic_lut[port].index = 0;
                     if (g_uart_api_dynamic_lut[port].buffer == NULL) {
+                        /*Print Error*/
                         continue;
                     }
                     g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
@@ -195,11 +196,12 @@ static void UART_API_Thread (void *argument) {
                             g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
                             break;
                         }
-                        if (byte == g_uart_api_dynamic_lut[port].delimiter[g_uart_api_dynamic_lut[port].delimiter_length - 1]) {
-                            if (UART_API_CheckDelimiter(&g_uart_api_dynamic_lut[port]) == true) {
-                                g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
-                                break;
-                            }
+                        if (byte != g_uart_api_dynamic_lut[port].delimiter[g_uart_api_dynamic_lut[port].delimiter_length - 1]) {
+                            break;
+                        }
+                        if (UART_API_CheckDelimiter(&g_uart_api_dynamic_lut[port]) == true) {
+                            g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
+                            break;
                         }
                     }
                     if (g_uart_api_dynamic_lut[port].state != eUartApiState_FlushData) {
@@ -207,19 +209,18 @@ static void UART_API_Thread (void *argument) {
                     }
                 }
                 case eUartApiState_FlushData: {
-                    if (g_uart_api_dynamic_lut[port].index > 0) {
-                        sMessage_t message = {
-                            .data = g_uart_api_dynamic_lut[port].buffer,
-                            .length = g_uart_api_dynamic_lut[port].index
-                        };
-                        UART_API_SendString(eUartApiPort_Uart1, message.data, message.length);
-                        if (osMessageQueuePut(g_uart_api_dynamic_lut[port].message_queue_id, &message, 0, MSG_QUEUE_PUT_TMO) != osOK) {
-                            Memory_API_Free(message.data);
-                        }
-                        g_uart_api_dynamic_lut[port].buffer = NULL;
-                        g_uart_api_dynamic_lut[port].index = 0;
-                        g_uart_api_dynamic_lut[port].state = eUartApiState_Initialize;
+                    if (g_uart_api_dynamic_lut[port].index == 0) {
+                        /*Print Error*/
+                        break;
                     }
+                    sMessage_t message = {.data = g_uart_api_dynamic_lut[port].buffer, .length = g_uart_api_dynamic_lut[port].index
+                    };
+                    UART_API_SendString(eUartApiPort_Uart1, message.data, message.length);
+                    if (osMessageQueuePut(g_uart_api_dynamic_lut[port].message_queue_id, &message, 0, MSG_QUEUE_PUT_TMO) != osOK) {
+                        Memory_API_Free(message.data);
+                        /*Print Error*/
+                    }
+                    g_uart_api_dynamic_lut[port].state = eUartApiState_Initialize;
                     break;
                 }
             }

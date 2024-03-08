@@ -14,8 +14,8 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define DEFAULT_UART1_DELIMITER          ("\r")
-#define DEFAULT_UART1_DELIMITER_LENGTH   (sizeof(char))
+#define DEBUG_UART_DELIMITER          ("\r")
+#define DEBUG_UART_DELIMITER_LENGTH   (sizeof(DEBUG_UART_DELIMITER) - 1)
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -101,10 +101,10 @@ int main (void) {
     if (Memory_API_Init() == false) {
         while(1);
     }
-    if (UART_API_Init(eUartApiPort_Uart1, 115200, DEFAULT_UART1_DELIMITER, DEFAULT_UART1_DELIMITER_LENGTH) == false) {
+    if (UART_API_Init(eUartApiPort_Uart1, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {
         while(1);
     }
-    if (osKernelStart() != osOK) { /*Start the RTOS Kernel*/
+    if (osKernelStart() != osOK) {
         while (1);
     }
     while (1) {
