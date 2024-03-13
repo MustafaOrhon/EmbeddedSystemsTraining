@@ -69,19 +69,19 @@ static void CLI_APP_Thread (void *argument) {
 
 static void CLI_APP_ProcessCommand (const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size) {
     if ((command == NULL) || (command_table == NULL) || (command_table_size == 0) ) {
-        DEBUG_API_Error("Invalid input parameters for command processing\r");
+        TRACE_Error("Invalid input parameters for command processing\r");
         return;
     }
     char *buffer = (char *)Memory_API_Calloc(length + 1, sizeof(char));
     if (buffer == NULL) {
-        DEBUG_API_Error("Memory allocation failed for command processing\r");
+        TRACE_Error("Memory allocation failed for command processing\r");
         return;
     }
     memcpy(buffer, command, length);
     buffer[length] = '\0';
     char *delimiter_pos = strchr(buffer, ':');
     if (delimiter_pos == NULL) {
-        DEBUG_API_Error("Command format error (missing ':'): %s\r", buffer);
+        TRACE_Error("Command format error (missing ':'): %s\r", buffer);
         Memory_API_Free(buffer);
         return;
     }
@@ -90,7 +90,7 @@ static void CLI_APP_ProcessCommand (const char *command, size_t length, const sC
     for (size_t i = 0; i < command_table_size; ++i) {
         if (strcmp(buffer, command_table[i].command) == 0) {
             if (command_table[i].handler == NULL) {
-                DEBUG_API_Error("Handler is NULL for command: %s\r", buffer);
+                TRACE_Error("Handler is NULL for command: %s\r", buffer);
                 Memory_API_Free(buffer);
                 return;
             }
@@ -99,7 +99,7 @@ static void CLI_APP_ProcessCommand (const char *command, size_t length, const sC
             return;
         }
     }
-    DEBUG_API_Error("Invalid command received: %s\r", buffer);
+    TRACE_Error("Invalid command received: %s\r", buffer);
     Memory_API_Free(buffer);
 }
 /**********************************************************************************************************************

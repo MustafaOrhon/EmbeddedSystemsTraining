@@ -8,9 +8,9 @@
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-#define DEBUG_API_Info(format, ...)    DEBUG_API_Print(eDebugMessage_Info, NULL, 0, format, ##__VA_ARGS__)
-#define DEBUG_API_Warning(format, ...) DEBUG_API_Print(eDebugMessage_Warning, __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define DEBUG_API_Error(format, ...)   DEBUG_API_Print(eDebugMessage_Error, __FILE__, __LINE__, format, ##__VA_ARGS__)
+#define TRACE_Info(format, ...)    DEBUG_API_Print(eDebugMessage_Info, NULL, 0, format, ##__VA_ARGS__)
+#define TRACE_Warning(format, ...) DEBUG_API_Print(eDebugMessage_Warning, __FILE__, __LINE__, format, ##__VA_ARGS__)
+#define TRACE_Error(format, ...)   DEBUG_API_Print(eDebugMessage_Error, __FILE__, __LINE__, format, ##__VA_ARGS__)
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/

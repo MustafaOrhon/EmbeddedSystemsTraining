@@ -60,7 +60,7 @@ bool DEBUG_API_Print (eDebugMessageEnum_t type, const char *file, int line, cons
     if (osMutexAcquire(g_debug_mutex_id, DEBUG_API_MUTEX_TIMEOUT) != osOK) {
         return false;
     }
-    int offset = 0;
+    size_t offset = 0;
     bool result = false;
     memset(g_debug_buffer, 0, DEBUG_API_BUFFER_SIZE);
     switch (type) {
@@ -81,7 +81,7 @@ bool DEBUG_API_Print (eDebugMessageEnum_t type, const char *file, int line, cons
     va_start(args, format);
     vsnprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, format, args);
     va_end(args);
-    result = UART_API_SendString(eUartApiPort_First, g_debug_buffer, strlen(g_debug_buffer));
+    result = UART_API_SendString(eUartApiPort_Uart1, g_debug_buffer, strlen(g_debug_buffer));
     osMutexRelease(g_debug_mutex_id);
     return result;
 }
