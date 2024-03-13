@@ -101,7 +101,7 @@ int main (void) {
     if (Memory_API_Init() == false) {
         while(1);
     }
-    if (UART_API_Init(eUartApiPort_Uart1, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {
+    if (UART_API_Init(eUartApiPort_Debug, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {
         while(1);
     }
     if (osKernelStart() != osOK) {
