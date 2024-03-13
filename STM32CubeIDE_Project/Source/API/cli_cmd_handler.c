@@ -49,7 +49,7 @@ typedef struct {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-void CLI_CMD_Handler_Set (const char *params) {
+void CLI_CMD_Handler_Set (const char *params,size_t length) {
     if (params == NULL) {
         TRACE_Error("NULL parameters provided\r");
         return;
@@ -73,7 +73,7 @@ void CLI_CMD_Handler_Set (const char *params) {
     Memory_API_Free(cmd_params);
 }
 
-void CLI_CMD_Handler_Reset (const char *params) {
+void CLI_CMD_Handler_Reset (const char *params,size_t length) {
     if (params == NULL) {
         TRACE_Error("NULL parameters provided\r");
         return;
@@ -97,7 +97,7 @@ void CLI_CMD_Handler_Reset (const char *params) {
     Memory_API_Free(cmd_params);
 }
 
-void CLI_CMD_Handler_Toggle (const char *params) {
+void CLI_CMD_Handler_Toggle (const char *params,size_t length) {
     if (params == NULL) {
         TRACE_Error("NULL parameters provided\r");
         return;
@@ -121,7 +121,7 @@ void CLI_CMD_Handler_Toggle (const char *params) {
     Memory_API_Free(cmd_params);
 }
 
-void CLI_CMD_Handler_Blink (const char *params) {
+void CLI_CMD_Handler_Blink (const char *params,size_t length) {
     if (params == NULL) {
         TRACE_Error("NULL parameters provided\r");
         return;

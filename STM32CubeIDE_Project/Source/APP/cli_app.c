@@ -11,7 +11,7 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
+#define CLI_THREAD_WAIT_TIME 100
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -20,13 +20,21 @@
  * Private constants
  *********************************************************************************************************************/
 static const sCommandEntry_t g_command_table[eCliCmd_Last] = {
-    [eCliCmd_Set] = {.command = "SET",
+    [eCliCmd_Set] = {
+        .command = "SET",
+        .command_size = (sizeof("SET") - 1),
         .handler = CLI_CMD_Handler_Set},
-    [eCliCmd_Reset] = {.command = "RESET",
+    [eCliCmd_Reset] = {
+        .command = "RESET",
+        .command_size = (sizeof("RESET") - 1),
         .handler = CLI_CMD_Handler_Reset},
-    [eCliCmd_Toggle] = {.command = "TOGGLE",
+    [eCliCmd_Toggle] = {
+        .command = "TOGGLE",
+        .command_size = (sizeof("TOGGLE") - 1),
         .handler = CLI_CMD_Handler_Toggle},
-    [eCliCmd_Blink] = {.command = "BLINK",
+    [eCliCmd_Blink] = {
+        .command = "BLINK",
+        .command_size = (sizeof("BLINK") - 1),
         .handler = CLI_CMD_Handler_Blink},
 };
 /**********************************************************************************************************************
@@ -54,12 +62,8 @@ static const sCommandEntry_t g_command_table[eCliCmd_Last] = {
 static void CLI_APP_Thread (void *argument) {
     sMessage_t received_message;
     while (1) {
-        memset(&received_message, 0, sizeof(received_message));
-        if (UART_API_ReceiveMessage(eUartApiPort_Uart1, &received_message,100) == false) {
+        if (UART_API_ReceiveMessage(eUartApiPort_Uart1, &received_message, CLI_THREAD_WAIT_TIME) == false) {
             osThreadYield();
-            continue;
-        }
-        if ((received_message.data == NULL) || (received_message.length == 0)) {
             continue;
         }
         CLI_APP_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last);
@@ -68,39 +72,28 @@ static void CLI_APP_Thread (void *argument) {
 }
 
 static void CLI_APP_ProcessCommand (const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size) {
-    if ((command == NULL) || (command_table == NULL) || (command_table_size == 0) ) {
+    if ((command == NULL) || (length == 0) || (command_table == NULL) || (command_table_size == 0)) {
         TRACE_Error("Invalid input parameters for command processing\r");
         return;
     }
-    char *buffer = (char *)Memory_API_Calloc(length + 1, sizeof(char));
-    if (buffer == NULL) {
-        TRACE_Error("Memory allocation failed for command processing\r");
-        return;
-    }
-    memcpy(buffer, command, length);
-    buffer[length] = '\0';
-    char *delimiter_pos = strchr(buffer, ':');
+    const char *delimiter_pos = strchr(command, ':');
     if (delimiter_pos == NULL) {
-        TRACE_Error("Command format error (missing ':'): %s\r", buffer);
-        Memory_API_Free(buffer);
+        TRACE_Error("Command format error (missing ':')\r");
         return;
     }
-    *delimiter_pos = '\0';
-    const char *params = delimiter_pos + 1;
+    size_t command_part_length = delimiter_pos - command;
+    size_t params_length = length - (command_part_length + 1);
     for (size_t i = 0; i < command_table_size; ++i) {
-        if (strcmp(buffer, command_table[i].command) == 0) {
+        if ((command_part_length == command_table[i].command_size) && (strncmp(command, command_table[i].command, command_part_length) == 0)) {
             if (command_table[i].handler == NULL) {
-                TRACE_Error("Handler is NULL for command: %s\r", buffer);
-                Memory_API_Free(buffer);
+                TRACE_Error("Handler is NULL for command\r");
                 return;
             }
-            command_table[i].handler(params);
-            Memory_API_Free(buffer);
+            command_table[i].handler(delimiter_pos + 1, params_length);
             return;
         }
     }
-    TRACE_Error("Invalid command received: %s\r", buffer);
-    Memory_API_Free(buffer);
+    TRACE_Error("Invalid command received\r");
 }
 /**********************************************************************************************************************
  * Definitions of exported functions

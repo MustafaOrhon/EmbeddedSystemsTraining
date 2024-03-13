@@ -23,10 +23,11 @@ typedef enum {
         eCliCmd_Last,
 } eCliCmd_t;
 
-typedef void (*Command_Handler) (const char *params);
+typedef void (*Command_Handler) (const char *params,size_t length);
 
 typedef struct {
     const char *command;
+    size_t command_size;
     Command_Handler handler;
 } sCommandEntry_t;
 /**********************************************************************************************************************
@@ -36,9 +37,9 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-void CLI_CMD_Handler_Set(const char *params);
-void CLI_CMD_Handler_Reset(const char *params);
-void CLI_CMD_Handler_Toggle(const char *params);
-void CLI_CMD_Handler_Blink(const char *params);
+void CLI_CMD_Handler_Set(const char *params,size_t length);
+void CLI_CMD_Handler_Reset(const char *params,size_t length);
+void CLI_CMD_Handler_Toggle(const char *params,size_t length);
+void CLI_CMD_Handler_Blink(const char *params,size_t length);
 
 #endif /* SOURCE_API_CLI_CMD_HANDLER_H_ */

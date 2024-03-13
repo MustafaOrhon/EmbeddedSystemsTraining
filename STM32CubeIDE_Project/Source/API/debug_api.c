@@ -65,23 +65,27 @@ bool DEBUG_API_Print (eDebugMessageEnum_t type, const char *file, int line, cons
     memset(g_debug_buffer, 0, DEBUG_API_BUFFER_SIZE);
     switch (type) {
         case eDebugMessage_Info:
-            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Info: ");
+            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Info: ");
             break;
         case eDebugMessage_Warning:
-            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Warning [%s:%d]: ", file, line);
+            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Warning [%s:%d]: ", file, line);
             break;
         case eDebugMessage_Error:
-            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Error [%s:%d]: ", file, line);
+            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Error [%s:%d]: ", file, line);
             break;
         default:
-            snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "Unknown message type: %d", type);
+            offset = (size_t)snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "Unknown message type: %d", type);
             break;
     }
     va_list args;
     va_start(args, format);
-    vsnprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, format, args);
+    int written = vsnprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, format, args);
     va_end(args);
-    result = UART_API_SendString(eUartApiPort_Uart1, g_debug_buffer, strlen(g_debug_buffer));
+    if (written > 0) {
+        offset += (size_t)(written < (DEBUG_API_BUFFER_SIZE - offset) ? written : (DEBUG_API_BUFFER_SIZE - offset - 1));
+    }
+    result = UART_API_SendString(eUartApiPort_Uart1, g_debug_buffer, offset);
     osMutexRelease(g_debug_mutex_id);
     return result;
 }
+
