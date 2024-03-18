@@ -65,7 +65,7 @@ DEFINE_DEBUG_MODULE_TAG(CLI_APP);
 static void CLI_APP_Thread (void *argument) {
     sMessage_t received_message;
     while (1) {
-        if (UART_API_ReceiveMessage(eUartApiPort_Uart1, &received_message, CLI_THREAD_WAIT_TIME) == false) {
+        if (UART_API_ReceiveMessage(eUartApiPort_Debug, &received_message, CLI_THREAD_WAIT_TIME) == false) {
             osThreadYield();
             continue;
         }

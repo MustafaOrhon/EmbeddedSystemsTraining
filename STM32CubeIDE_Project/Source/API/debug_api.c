@@ -86,7 +86,7 @@ bool DEBUG_API_Print(const char *module_tag, eDebugMessageEnum_t type, const cha
     if (written > 0) {
         offset += (size_t)(written < (DEBUG_API_BUFFER_SIZE - offset) ? written : (DEBUG_API_BUFFER_SIZE - offset - 1));
     }
-    result = UART_API_SendString(eUartApiPort_Uart1, g_debug_buffer, offset);
+    result = UART_API_SendString(eUartApiPort_Debug, g_debug_buffer, offset);
     osMutexRelease(g_debug_mutex_id);
     return result;
 }
