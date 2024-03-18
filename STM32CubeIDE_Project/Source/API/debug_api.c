@@ -26,16 +26,6 @@
     NULL,
     0U
 };
-
-static const char *module_strings[eDebugModuke_Last] = {
-    [eDebugModule_Led] = "LED",
-    [eDebugModule_Memory] = "Memory",
-    [eDebugModule_Uart] = "Uart",
-    [eDebugModule_Cli] = "Cli",
-    [eDebugModule_Driver] = "Driver",
-    [eDebugModule_Utility] = "Utility",
-    [eDebugModule_Other] = "Other"
-};
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
@@ -66,27 +56,27 @@ bool DEBUG_API_Init (void) {
     return true;
 }
 
-bool DEBUG_API_Print (eDebugModuleEnum_t module,eDebugMessageEnum_t type, const char *file, int line, const char *format, ...) {
+bool DEBUG_API_Print(const char *module_tag, eDebugMessageEnum_t type, const char *file, int line, const char *format, ...) {
     if (osMutexAcquire(g_debug_mutex_id, DEBUG_API_MUTEX_TIMEOUT) != osOK) {
         return false;
     }
-    const char *module_str = module_strings[module];
     size_t offset = 0;
-    memset(g_debug_buffer, 0, DEBUG_API_BUFFER_SIZE);
-    offset = (size_t)snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "[%s]", module_str);
     bool result = false;
+    memset(g_debug_buffer, 0, DEBUG_API_BUFFER_SIZE);
+    offset += snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "[%s] ", module_tag);
+
     switch (type) {
         case eDebugMessage_Info:
-            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Info: ");
+            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Info: ");
             break;
         case eDebugMessage_Warning:
-            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Warning [%s:%d]: ", file, line);
+            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Warning [%s:%d]: ", file, line);
             break;
         case eDebugMessage_Error:
-            offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Error [%s:%d]: ", file, line);
+            offset += snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Error [%s:%d]: ", file, line);
             break;
         default:
-            offset = (size_t)snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "Unknown message type: %d", type);
+            snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "[Unknown] Unknown message type: %d", type);
             break;
     }
     va_list args;
