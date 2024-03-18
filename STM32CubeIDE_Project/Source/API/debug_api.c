@@ -26,6 +26,16 @@
     NULL,
     0U
 };
+
+static const char *module_strings[eDebugModuke_Last] = {
+    [eDebugModule_Led] = "LED",
+    [eDebugModule_Memory] = "Memory",
+    [eDebugModule_Uart] = "Uart",
+    [eDebugModule_Cli] = "Cli",
+    [eDebugModule_Driver] = "Driver",
+    [eDebugModule_Utility] = "Utility",
+    [eDebugModule_Other] = "Other"
+};
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
@@ -56,13 +66,15 @@ bool DEBUG_API_Init (void) {
     return true;
 }
 
-bool DEBUG_API_Print (eDebugMessageEnum_t type, const char *file, int line, const char *format, ...) {
+bool DEBUG_API_Print (eDebugModuleEnum_t module,eDebugMessageEnum_t type, const char *file, int line, const char *format, ...) {
     if (osMutexAcquire(g_debug_mutex_id, DEBUG_API_MUTEX_TIMEOUT) != osOK) {
         return false;
     }
+    const char *module_str = module_strings[module];
     size_t offset = 0;
-    bool result = false;
     memset(g_debug_buffer, 0, DEBUG_API_BUFFER_SIZE);
+    offset = (size_t)snprintf(g_debug_buffer, DEBUG_API_BUFFER_SIZE, "[%s]", module_str);
+    bool result = false;
     switch (type) {
         case eDebugMessage_Info:
             offset += (size_t)snprintf(g_debug_buffer + offset, DEBUG_API_BUFFER_SIZE - offset, "Info: ");

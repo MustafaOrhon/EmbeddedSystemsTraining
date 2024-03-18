@@ -73,12 +73,12 @@ static void CLI_APP_Thread (void *argument) {
 
 static void CLI_APP_ProcessCommand (const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size) {
     if ((command == NULL) || (length == 0) || (command_table == NULL) || (command_table_size == 0)) {
-        TRACE_Error("Invalid input parameters for command processing\r");
+        TRACE_Error(eDebugModule_Cli,"Invalid input parameters for command processing\r");
         return;
     }
     const char *delimiter_pos = strchr(command, ':');
     if (delimiter_pos == NULL) {
-        TRACE_Error("Command format error (missing ':')\r");
+        TRACE_Error(eDebugModule_Cli,"Command format error (missing ':')\r");
         return;
     }
     size_t command_part_length = delimiter_pos - command;
@@ -86,14 +86,14 @@ static void CLI_APP_ProcessCommand (const char *command, size_t length, const sC
     for (size_t i = 0; i < command_table_size; ++i) {
         if ((command_part_length == command_table[i].command_size) && (strncmp(command, command_table[i].command, command_part_length) == 0)) {
             if (command_table[i].handler == NULL) {
-                TRACE_Error("Handler is NULL for command\r");
+                TRACE_Error(eDebugModule_Cli,"Handler is NULL for command\r");
                 return;
             }
             command_table[i].handler(delimiter_pos + 1, params_length);
             return;
         }
     }
-    TRACE_Error("Invalid command received\r");
+    TRACE_Error(eDebugModule_Cli,"Invalid command received\r");
 }
 /**********************************************************************************************************************
  * Definitions of exported functions

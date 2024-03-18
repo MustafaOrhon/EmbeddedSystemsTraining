@@ -51,96 +51,96 @@ typedef struct {
  *********************************************************************************************************************/
 void CLI_CMD_Handler_Set (const char *params,size_t length) {
     if (params == NULL) {
-        TRACE_Error("NULL parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"NULL parameters provided\r");
         return;
     }
     sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
     if (cmd_params == NULL) {
-        TRACE_Error("Memory allocation failed for SET command\r");
+        TRACE_Error(eDebugModule_Cli,"Memory allocation failed for SET command\r");
         return;
     }
     if (sscanf(params, "%u", &cmd_params->led_number) != 1) {
-        TRACE_Error("Invalid parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"Invalid parameters provided\r");
         Memory_API_Free(cmd_params);
         return;
     }
     if (cmd_params->led_number > HANDLER_API_MAX_LED_NUMBER) {
-        TRACE_Error("Invalid LED number (%u)\r", cmd_params->led_number);
+        TRACE_Error(eDebugModule_Cli,"Invalid LED number (%u)\r", cmd_params->led_number);
         Memory_API_Free(cmd_params);
         return;
     }
-    TRACE_Info("SET command prepared for LED %u\r", cmd_params->led_number);
+    TRACE_Info(eDebugModule_Cli,"SET command prepared for LED %u\r", cmd_params->led_number);
     Memory_API_Free(cmd_params);
 }
 
 void CLI_CMD_Handler_Reset (const char *params,size_t length) {
     if (params == NULL) {
-        TRACE_Error("NULL parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"NULL parameters provided\r");
         return;
     }
     sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
     if (cmd_params == NULL) {
-        TRACE_Error("Memory allocation failed for RESET command\r");
+        TRACE_Error(eDebugModule_Cli,"Memory allocation failed for RESET command\r");
         return;
     }
     if (sscanf(params, "%u", &cmd_params->led_number) != 1) {
-        TRACE_Error("Invalid parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"Invalid parameters provided\r");
         Memory_API_Free(cmd_params);
         return;
     }
     if (cmd_params->led_number > HANDLER_API_MAX_LED_NUMBER) {
-        TRACE_Error("Invalid LED number (%u)\r", cmd_params->led_number);
+        TRACE_Error(eDebugModule_Cli,"Invalid LED number (%u)\r", cmd_params->led_number);
         Memory_API_Free(cmd_params);
         return;
     }
-    TRACE_Info("RESET command prepared for LED %u\r", cmd_params->led_number);
+    TRACE_Info(eDebugModule_Cli,"RESET command prepared for LED %u\r", cmd_params->led_number);
     Memory_API_Free(cmd_params);
 }
 
 void CLI_CMD_Handler_Toggle (const char *params,size_t length) {
     if (params == NULL) {
-        TRACE_Error("NULL parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"NULL parameters provided\r");
         return;
     }
     sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
     if (cmd_params == NULL) {
-        TRACE_Error("Memory allocation failed for TOGGLE command\r");
+        TRACE_Error(eDebugModule_Cli,"Memory allocation failed for TOGGLE command\r");
         return;
     }
     if (sscanf(params, "%u", &cmd_params->led_number) != 1) {
-        TRACE_Error("Invalid parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"Invalid parameters provided\r");
         Memory_API_Free(cmd_params);
         return;
     }
     if (cmd_params->led_number > HANDLER_API_MAX_LED_NUMBER) {
-        TRACE_Error("Invalid LED number (%u)\r", cmd_params->led_number);
+        TRACE_Error(eDebugModule_Cli,"Invalid LED number (%u)\r", cmd_params->led_number);
         Memory_API_Free(cmd_params);
         return;
     }
-    TRACE_Info("TOGGLE command prepared for LED %u\r", cmd_params->led_number);
+    TRACE_Info(eDebugModule_Cli,"TOGGLE command prepared for LED %u\r", cmd_params->led_number);
     Memory_API_Free(cmd_params);
 }
 
 void CLI_CMD_Handler_Blink (const char *params,size_t length) {
     if (params == NULL) {
-        TRACE_Error("NULL parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"NULL parameters provided\r");
         return;
     }
     sBlinkCommandParams_t *cmd_params = (sBlinkCommandParams_t *)Memory_API_Malloc(sizeof(sBlinkCommandParams_t));
     if (cmd_params == NULL) {
-        TRACE_Error("Memory allocation failed for BLINK command\r");
+        TRACE_Error(eDebugModule_Cli,"Memory allocation failed for BLINK command\r");
         return;
     }
     if (sscanf(params, "%u,%u,%u", &cmd_params->led_number, &cmd_params->time, &cmd_params->frequency) != 3) {
-        TRACE_Error("Invalid parameters provided\r");
+        TRACE_Error(eDebugModule_Cli,"Invalid parameters provided\r");
         Memory_API_Free(cmd_params);
         return;
     }
     if ((cmd_params->led_number > HANDLER_API_MAX_LED_NUMBER) || (cmd_params->time > HANDLER_API_MAX_TIME) || (cmd_params->frequency < HANDLER_API_MIN_BLINK_FREQ) || (cmd_params->frequency > HANDLER_API_MAX_BLINK_FREQ)) {
-        TRACE_Error("Invalid parameters: LED %u, time %u, frequency %u\r", cmd_params->led_number, cmd_params->time, cmd_params->frequency);
+        TRACE_Error(eDebugModule_Cli,"Invalid parameters: LED %u, time %u, frequency %u\r", cmd_params->led_number, cmd_params->time, cmd_params->frequency);
         Memory_API_Free(cmd_params);
         return;
     }
-    TRACE_Info("BLINK command prepared for LED %u with time %u and frequency %u\r", cmd_params->led_number, cmd_params->time, cmd_params->frequency);
+    TRACE_Info(eDebugModule_Cli,"BLINK command prepared for LED %u with time %u and frequency %u\r", cmd_params->led_number, cmd_params->time, cmd_params->frequency);
     Memory_API_Free(cmd_params);
 }
