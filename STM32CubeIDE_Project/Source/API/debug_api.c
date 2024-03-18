@@ -21,14 +21,14 @@
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
- static const osMutexAttr_t debug_mutex_attr = {
+ static const osMutexAttr_t g_debug_mutex_attr = {
     "Debug Mutex",
     osMutexPrioInherit,
     NULL,
     0U
 };
-static const char *overflow_message = OVERFLOW_MESSAGE;
-static const size_t overflow_message_len = OVERFLOW_MESSAGE_LEN;
+static const char *g_overflow_message = OVERFLOW_MESSAGE;
+static const size_t g_overflow_message_len = OVERFLOW_MESSAGE_LEN;
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
@@ -51,7 +51,7 @@ static const size_t overflow_message_len = OVERFLOW_MESSAGE_LEN;
  *********************************************************************************************************************/
 bool DEBUG_API_Init (void) {
     if (g_debug_mutex_id == NULL) {
-        g_debug_mutex_id = osMutexNew(&debug_mutex_attr);
+        g_debug_mutex_id = osMutexNew(&g_debug_mutex_attr);
         if (g_debug_mutex_id == NULL) {
             return false;
         }
@@ -87,7 +87,7 @@ bool DEBUG_API_Print(const char *module_tag, eDebugMessageEnum_t type, const cha
             break;
     }
     if ((message_length < 0) || (message_length >= DEBUG_API_BUFFER_SIZE)) {
-        UART_API_SendString(eUartApiPort_Debug, overflow_message, overflow_message_len);
+        UART_API_SendString(eUartApiPort_Debug, g_overflow_message, g_overflow_message_len);
         osMutexRelease(g_debug_mutex_id);
         return false;
     }
@@ -96,7 +96,7 @@ bool DEBUG_API_Print(const char *module_tag, eDebugMessageEnum_t type, const cha
     message_length += vsnprintf(g_debug_buffer + message_length, DEBUG_API_BUFFER_SIZE - message_length, format, args);
     va_end(args);
     if ((message_length < 0) || (message_length >= DEBUG_API_BUFFER_SIZE)) {
-        UART_API_SendString(eUartApiPort_Debug, overflow_message, overflow_message_len);
+        UART_API_SendString(eUartApiPort_Debug, g_overflow_message, g_overflow_message_len);
         osMutexRelease(g_debug_mutex_id);
         return false;
     }
