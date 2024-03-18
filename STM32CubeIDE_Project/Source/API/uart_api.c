@@ -152,9 +152,7 @@ static void UART_API_Thread (void *argument) {
                 case eUartApiState_FlushData: {
                     if (g_uart_api_dynamic_lut[port].index == 0) {
                         /*Print Error*/
-                        Memory_API_Free(g_uart_api_dynamic_lut[port].buffer);
-                        g_uart_api_dynamic_lut[port].buffer = NULL;
-                        g_uart_api_dynamic_lut[port].state = eUartApiState_Initialize;
+                        g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
                         break;
                     }
                     sMessage_t message = {.data = g_uart_api_dynamic_lut[port].buffer, .length = g_uart_api_dynamic_lut[port].index};
