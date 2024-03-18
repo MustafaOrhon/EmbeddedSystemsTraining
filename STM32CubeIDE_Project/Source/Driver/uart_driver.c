@@ -32,7 +32,7 @@ typedef struct {
 } sUartStaticDesc_t;
 
 typedef struct {
-    sRingBuffer_t*  rx_ring_buffer;
+    sRingBuffer_t   *rx_ring_buffer;
 } sUartDynamicDesc_t;
 /**********************************************************************************************************************
  * Private constants
