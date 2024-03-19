@@ -96,6 +96,7 @@ bool DEBUG_API_Print(const char *module_tag, eDebugMessageEnum_t type, const cha
     va_end(args);
     if (message_length > DEBUG_API_BUFFER_SIZE) {
         message_length = DEBUG_API_BUFFER_SIZE;
+        UART_API_SendString(eUartApiPort_Debug, g_overflow_message, g_overflow_message_len);
     }
     result = UART_API_SendString(eUartApiPort_Debug, g_debug_buffer, (size_t)message_length);
     osMutexRelease(g_debug_mutex_id);
