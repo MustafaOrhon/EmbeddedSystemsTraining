@@ -8,10 +8,10 @@
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-#define TRACE_Info(tag, format, ...)    DEBUG_API_Print(tag, eDebugMessage_Info, NULL, 0, format, ##__VA_ARGS__)
-#define TRACE_Warning(tag, format, ...) DEBUG_API_Print(tag, eDebugMessage_Warning, __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define TRACE_Error(tag, format, ...)   DEBUG_API_Print(tag, eDebugMessage_Error, __FILE__, __LINE__, format, ##__VA_ARGS__)
 #define DEFINE_DEBUG_MODULE_TAG(tag) static const char *module_tag = #tag
+#define TRACE_INFO(...)    DEBUG_API_Print(module_tag, eDebugMessage_Info, NULL, 0, __VA_ARGS__)
+#define TRACE_WARNING(...) DEBUG_API_Print(module_tag, eDebugMessage_Warning, __FILE__, __LINE__, __VA_ARGS__)
+#define TRACE_ERROR(...)   DEBUG_API_Print(module_tag, eDebugMessage_Error, __FILE__, __LINE__, __VA_ARGS__)
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
