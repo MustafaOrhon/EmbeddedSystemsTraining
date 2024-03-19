@@ -11,6 +11,7 @@
 #include "gpio_driver.h"
 #include "uart_api.h"
 #include "memory_api.h"
+#include "debug_api.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -99,6 +100,9 @@ int main (void) {
         while (1);
     }
     if (Memory_API_Init() == false) {
+        while(1);
+    }
+    if (DEBUG_API_Init() == false) {
         while(1);
     }
     if (UART_API_Init(eUartApiPort_Debug, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {

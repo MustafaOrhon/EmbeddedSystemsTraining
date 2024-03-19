@@ -5,6 +5,7 @@
 #include "cmsis_os.h"
 #include "memory_api.h"
 #include "uart_driver.h"
+#include "debug_api.h"
 #include "uart_api.h"
 /**********************************************************************************************************************
  * Private definitions and macros
@@ -72,6 +73,7 @@ static const osMutexAttr_t g_uart_api_mutex_attrs[eUartApiPort_Last] = {
         .cb_size = 0
     }
 };
+DEFINE_DEBUG_MODULE_TAG(UART_API);
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
@@ -124,7 +126,7 @@ static void UART_API_Thread (void *argument) {
                     g_uart_api_dynamic_lut[port].buffer = Memory_API_Calloc(g_uart_api_static_lut[port].max_message_size, sizeof(char));
                     g_uart_api_dynamic_lut[port].index = 0;
                     if (g_uart_api_dynamic_lut[port].buffer == NULL) {
-                        /*Print Error*/
+                        TRACE_ERROR("Memory allocation failed.\r");
                         continue;
                     }
                     g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
@@ -151,13 +153,13 @@ static void UART_API_Thread (void *argument) {
                 }
                 case eUartApiState_FlushData: {
                     if (g_uart_api_dynamic_lut[port].index == 0) {
-                        /*Print Error*/
+                        TRACE_ERROR("No data collected to flush.\r");
                         g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
                         break;
                     }
                     sMessage_t message = {.data = g_uart_api_dynamic_lut[port].buffer, .length = g_uart_api_dynamic_lut[port].index};
                     if (osMessageQueuePut(g_uart_api_dynamic_lut[port].message_queue_id, &message, 0, MSG_QUEUE_PUT_TMO) != osOK) {
-                        /*Print Error*/
+                        TRACE_ERROR("Unable to put message in message queue.\r");
                         break;
                     }
                     g_uart_api_dynamic_lut[port].state = eUartApiState_Initialize;
