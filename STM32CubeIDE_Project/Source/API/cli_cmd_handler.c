@@ -35,7 +35,7 @@
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool CLI_CMD_Handler_Set (const char *params, size_t length, char *response, size_t response_size) {
+bool CLI_CMD_Handler_SET (const char *params, size_t length, char *response, size_t response_size) {
     if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
         snprintf(response, response_size, "Invalid input params\r");
         return false;
@@ -44,7 +44,7 @@ bool CLI_CMD_Handler_Set (const char *params, size_t length, char *response, siz
     return true;
 }
 
-bool CLI_CMD_Handler_Reset (const char *params, size_t length, char *response, size_t response_size) {
+bool CLI_CMD_Handler_RESET (const char *params, size_t length, char *response, size_t response_size) {
     if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
         snprintf(response, response_size, "Invalid input params\r");
         return false;
@@ -53,7 +53,7 @@ bool CLI_CMD_Handler_Reset (const char *params, size_t length, char *response, s
     return true;
 }
 
-bool CLI_CMD_Handler_Toggle (const char *params, size_t length, char *response, size_t response_size) {
+bool CLI_CMD_Handler_TOGGLE (const char *params, size_t length, char *response, size_t response_size) {
     if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
         snprintf(response, response_size, "Invalid input params\r");
         return false;
@@ -62,7 +62,7 @@ bool CLI_CMD_Handler_Toggle (const char *params, size_t length, char *response, 
     return true;
 }
 
-bool CLI_CMD_Handler_Blink (const char *params, size_t length, char *response, size_t response_size) {
+bool CLI_CMD_Handler_BLINK (const char *params, size_t length, char *response, size_t response_size) {
     if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
         snprintf(response, response_size, "Invalid input params\r");
         return false;

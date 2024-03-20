@@ -30,8 +30,8 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool CLI_CMD_Handler_Set(const char *params, size_t length, char *response, size_t response_size);
-bool CLI_CMD_Handler_Reset(const char *params, size_t length, char *response, size_t response_size);
-bool CLI_CMD_Handler_Toggle(const char *params, size_t length, char *response, size_t response_size);
-bool CLI_CMD_Handler_Blink(const char *params, size_t length, char *response, size_t response_size);
+bool CLI_CMD_Handler_SET(const char *params, size_t length, char *response, size_t response_size);
+bool CLI_CMD_Handler_RESET(const char *params, size_t length, char *response, size_t response_size);
+bool CLI_CMD_Handler_TOGGLE(const char *params, size_t length, char *response, size_t response_size);
+bool CLI_CMD_Handler_BLINK(const char *params, size_t length, char *response, size_t response_size);
 #endif /* SOURCE_API_CLI_CMD_HANDLER_H_ */

@@ -13,6 +13,11 @@
  *********************************************************************************************************************/
 #define CLI_THREAD_WAIT_TIME 100
 #define CLI_RESPONSE_BUFFER_SIZE 512
+#define DEFINE_CMD(cmd) { \
+    .command = #cmd, \
+    .command_size = sizeof(#cmd) - 1, \
+    .handler = CLI_CMD_Handler_##cmd \
+}
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -21,22 +26,10 @@
  * Private constants
  *********************************************************************************************************************/
 static const sCommandEntry_t g_command_table[eCliCmd_Last] = {
-    [eCliCmd_Set] = {
-        .command = "SET",
-        .command_size = (sizeof("SET") - 1),
-        .handler = CLI_CMD_Handler_Set},
-    [eCliCmd_Reset] = {
-        .command = "RESET",
-        .command_size = (sizeof("RESET") - 1),
-        .handler = CLI_CMD_Handler_Reset},
-    [eCliCmd_Toggle] = {
-        .command = "TOGGLE",
-        .command_size = (sizeof("TOGGLE") - 1),
-        .handler = CLI_CMD_Handler_Toggle},
-    [eCliCmd_Blink] = {
-        .command = "BLINK",
-        .command_size = (sizeof("BLINK") - 1),
-        .handler = CLI_CMD_Handler_Blink},
+    [eCliCmd_Set] = DEFINE_CMD(SET),
+    [eCliCmd_Reset] = DEFINE_CMD(RESET),
+    [eCliCmd_Toggle] = DEFINE_CMD(TOGGLE),
+    [eCliCmd_Blink] = DEFINE_CMD(BLINK),
 };
 
 static const osThreadAttr_t g_cli_app_thread_attr = {
