@@ -13,7 +13,11 @@
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-
+typedef struct {
+    const char *command;
+    size_t command_size;
+    Command_Handler handler;
+} sCommandEntry_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -21,5 +25,5 @@
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-void CMD_API_ProcessCommand(const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size);
+void CMD_API_ProcessCommand(const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size,char *response, size_t response_size);
 #endif /* SOURCE_API_CMD_API_H_ */

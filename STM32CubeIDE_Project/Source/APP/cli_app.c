@@ -12,6 +12,7 @@
  * Private definitions and macros
  *********************************************************************************************************************/
 #define CLI_THREAD_WAIT_TIME 100
+#define CLI_RESPONSE_BUFFER_SIZE 512
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -47,6 +48,7 @@ static const osThreadAttr_t g_cli_app_thread_attr = {
  * Private variables
  *********************************************************************************************************************/
 static osThreadId_t g_cli_app_thread_id = NULL;
+static char g_cli_response_buffer[CLI_RESPONSE_BUFFER_SIZE];
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -64,7 +66,7 @@ static void CLI_APP_Thread (void *argument) {
         if (UART_API_ReceiveMessage(eUartApiPort_Debug, &received_message, CLI_THREAD_WAIT_TIME) == false) {
             continue;
         }
-        CMD_API_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last);
+        CMD_API_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last,g_cli_response_buffer,CLI_RESPONSE_BUFFER_SIZE);
         Memory_API_Free(received_message.data);
     }
 }

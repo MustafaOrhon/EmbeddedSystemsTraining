@@ -15,12 +15,6 @@
  *********************************************************************************************************************/
 typedef bool (*Command_Handler)(const char *params, size_t length, char *response, size_t response_size);
 
-typedef struct {
-    const char *command;
-    size_t command_size;
-    Command_Handler handler;
-} sCommandEntry_t;
-
 typedef enum {
         eCliCmd_First = 0,
         eCliCmd_Set = eCliCmd_First,
