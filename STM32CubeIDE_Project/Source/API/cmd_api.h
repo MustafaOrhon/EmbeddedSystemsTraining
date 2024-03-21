@@ -25,5 +25,5 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-void CMD_API_ProcessCommand(const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size,char *response, size_t response_size);
+bool CMD_API_ProcessCommand(const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size,char *response, size_t response_size);
 #endif /* SOURCE_API_CMD_API_H_ */

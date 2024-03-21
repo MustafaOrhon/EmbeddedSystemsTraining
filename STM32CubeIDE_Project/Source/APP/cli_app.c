@@ -7,10 +7,12 @@
 #include "uart_api.h"
 #include "memory_api.h"
 #include "cmd_api.h"
+#include "debug_api.h"
 #include "cli_app.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
+DEFINE_DEBUG_MODULE_TAG(CLI_APP);
 #define CLI_THREAD_WAIT_TIME 100
 #define CLI_RESPONSE_BUFFER_SIZE 512
 #define DEFINE_CMD(cmd) { \
@@ -59,7 +61,11 @@ static void CLI_APP_Thread (void *argument) {
         if (UART_API_ReceiveMessage(eUartApiPort_Debug, &received_message, CLI_THREAD_WAIT_TIME) == false) {
             continue;
         }
-        CMD_API_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last,g_cli_response_buffer,CLI_RESPONSE_BUFFER_SIZE);
+        if (CMD_API_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last, g_cli_response_buffer, CLI_RESPONSE_BUFFER_SIZE) == true) {
+            TRACE_INFO("%s", g_cli_response_buffer);
+        } else {
+            TRACE_WARNING("%s", g_cli_response_buffer);
+        }
         Memory_API_Free(received_message.data);
     }
 }
