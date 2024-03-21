@@ -62,9 +62,9 @@ static void CLI_APP_Thread (void *argument) {
             continue;
         }
         if (CMD_API_ProcessCommand(received_message.data, received_message.length, g_command_table, eCliCmd_Last, g_cli_response_buffer, CLI_RESPONSE_BUFFER_SIZE) == true) {
-            TRACE_INFO("%s", g_cli_response_buffer);
+            TRACE_INFO(g_cli_response_buffer);
         } else {
-            TRACE_WARNING("%s", g_cli_response_buffer);
+            TRACE_WARNING(g_cli_response_buffer);
         }
         Memory_API_Free(received_message.data);
     }
