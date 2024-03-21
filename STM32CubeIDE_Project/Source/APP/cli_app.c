@@ -14,12 +14,12 @@
  *********************************************************************************************************************/
 DEFINE_DEBUG_MODULE_TAG(CLI_APP);
 #define CLI_RESPONSE_BUFFER_SIZE 512
-#define DEFINE_CMD(cmd, handler_func) { \
+#define DEFINE_CMD(cmd, handler_func, sep) { \
     .command = #cmd, \
     .command_size = sizeof(#cmd) - 1, \
     .handler = &handler_func, \
-    .separator = ":", \
-    .separator_length = sizeof(":") - 1 \
+    .separator = sep, \
+    .separator_length = sizeof(sep) - 1 \
 }
 /**********************************************************************************************************************
  * Private typedef
@@ -29,10 +29,10 @@ DEFINE_DEBUG_MODULE_TAG(CLI_APP);
  * Private constants
  *********************************************************************************************************************/
 static const sCommand_t g_command_table[eCliCmd_Last] = {
-    [eCliCmd_Set] = DEFINE_CMD(led_set, CLI_CMD_SetHandler),
-    [eCliCmd_Reset] = DEFINE_CMD(led_reset, CLI_CMD_ResetHandler),
-    [eCliCmd_Toggle] = DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler),
-    [eCliCmd_Blink] = DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler),
+    [eCliCmd_Set] = DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
+    [eCliCmd_Reset] = DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
+    [eCliCmd_Toggle] = DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
+    [eCliCmd_Blink] = DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI Thread",
