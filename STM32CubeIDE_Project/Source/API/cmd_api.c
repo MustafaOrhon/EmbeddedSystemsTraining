@@ -28,38 +28,52 @@
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
- 
+static int CMD_API_FindSeparator (const char *data, size_t data_length, const char *separator, size_t separator_length);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
- 
+static int CMD_API_FindSeparator (const char *data, size_t data_length, const char *separator, size_t separator_length) {
+    const char *delimiter_pos = strstr(data, separator);
+    if (delimiter_pos == NULL) {
+        return -1;
+    }
+    if ((delimiter_pos == data) && (data_length == separator_length)) {
+        return 0;
+    }
+    return delimiter_pos - data;
+}
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
- bool CMD_API_ProcessCommand (const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size,char *response, size_t response_size) {
-     if ((command == NULL) || (length == 0) || (command_table == NULL) || (command_table_size == 0)) {
-         snprintf(response, response_size, "Invalid input parameters for command processing\r");
-         return false;
-     }
-     const char *delimiter_pos = strchr(command, ':');
-     if (delimiter_pos == NULL) {
-         snprintf(response, response_size, "Command format error (missing ':')\r");
-         return false;
-     }
-     size_t command_part_length = delimiter_pos - command;
-     size_t params_length = length - (command_part_length + 1);
-     for (size_t i = 0; i < command_table_size; ++i) {
-         if ((command_part_length == command_table[i].command_size) && (strncmp(command, command_table[i].command, command_part_length) == 0)) {
-             if (command_table[i].handler == NULL) {
-                 snprintf(response, response_size, "Handler is NULL for command\r");
-                 return false;
-             }
-             if (command_table[i].handler(delimiter_pos + 1, params_length, response, response_size) == false) {
-                 return false;
-             }
-             return true;
-         }
-     }
-     snprintf(response, response_size, "Invalid command received\r");
-     return false;
- }
+bool CMD_API_ProcessCommand (const char *data, size_t length, const sCmdParser_t *command_context) {
+    if ((data == NULL) || (length == 0) || (command_context == NULL)) {
+        snprintf(command_context->response, command_context->response_size, "Invalid input parameters for command processing\r");
+        return false;
+    }
+    for (size_t cmd = 0; cmd < command_context->command_table_size; ++cmd) {
+        const sCommand_t *entry = &command_context->command_table[cmd];
+        int separator_index = CMD_API_FindSeparator(data, length, entry->separator, entry->separator_length);
+        if (separator_index == -1) {
+            snprintf(command_context->response, command_context->response_size, "Command format error (missing '%s')\r", entry->separator);
+            return false;
+        } else if (separator_index == 0) {
+            snprintf(command_context->response, command_context->response_size, "Empty message\r");
+            return false;
+        }
+        if (((size_t)separator_index == entry->command_size) && (strncmp(data, entry->command, entry->command_size) == 0)) {
+            if (entry->handler == NULL) {
+                snprintf(command_context->response, command_context->response_size, "Handler is NULL for command\r");
+                return false;
+            }
+            sCommandParams_t cmd_params = {
+                .params = data + separator_index + entry->separator_length,
+                .length = length - (separator_index + entry->separator_length),
+                .response = command_context->response,
+                .response_size = command_context->response_size
+            };
+            return entry->handler(&cmd_params);
+        }
+    }
+    snprintf(command_context->response, command_context->response_size, "Invalid command received\r");
+    return false;
+}

@@ -35,38 +35,38 @@
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool CLI_CMD_Handler_SET (const char *params, size_t length, char *response, size_t response_size) {
-    if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
-        snprintf(response, response_size, "Invalid input params\r");
+bool CLI_CMD_SetHandler (const sCommandParams_t *cmd_params) {
+    if ((cmd_params->params == NULL) || (cmd_params->length == 0) || (cmd_params->response == NULL) || (cmd_params->response_size == 0)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid input params\r");
         return false;
     }
-    snprintf(response, response_size, "Set command executed successfully.\r\n");
+    snprintf(cmd_params->response, cmd_params->response_size, "Set command executed successfully.\r");
     return true;
 }
 
-bool CLI_CMD_Handler_RESET (const char *params, size_t length, char *response, size_t response_size) {
-    if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
-        snprintf(response, response_size, "Invalid input params\r");
+bool CLI_CMD_ResetHandler (const sCommandParams_t *cmd_params) {
+    if ((cmd_params->params == NULL) || (cmd_params->length == 0) || (cmd_params->response == NULL) || (cmd_params->response_size == 0)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid input params\r");
         return false;
     }
-    snprintf(response, response_size, "Reset command executed successfully.\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "Reset command executed successfully.\r");
     return true;
 }
 
-bool CLI_CMD_Handler_TOGGLE (const char *params, size_t length, char *response, size_t response_size) {
-    if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
-        snprintf(response, response_size, "Invalid input params\r");
+bool CLI_CMD_ToggleHandler (const sCommandParams_t *cmd_params) {
+    if ((cmd_params->params == NULL) || (cmd_params->length == 0) || (cmd_params->response == NULL) || (cmd_params->response_size == 0)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid input params\r");
         return false;
     }
-    snprintf(response, response_size, "Toggle command executed successfully.\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "Toggle command executed successfully.\r");
     return true;
 }
 
-bool CLI_CMD_Handler_BLINK (const char *params, size_t length, char *response, size_t response_size) {
-    if ((params == NULL) || (length == 0) || (response == NULL) || (response_size == 0)) {
-        snprintf(response, response_size, "Invalid input params\r");
+bool CLI_CMD_BlinkHandler (const sCommandParams_t *cmd_params) {
+    if ((cmd_params->params == NULL) || (cmd_params->length == 0) || (cmd_params->response == NULL) || (cmd_params->response_size == 0)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid input params\r");
         return false;
     }
-    snprintf(response, response_size, "Blink command executed successfully.\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "Blink command executed successfully.\r");
     return true;
 }

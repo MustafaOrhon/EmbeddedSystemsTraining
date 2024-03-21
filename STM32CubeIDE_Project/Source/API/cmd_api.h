@@ -16,8 +16,17 @@
 typedef struct {
     const char *command;
     size_t command_size;
-    Command_Handler handler;
-} sCommandEntry_t;
+    sCmdHandler_t handler;
+    const char *separator;
+    size_t separator_length;
+} sCommand_t;
+
+typedef struct {
+    const sCommand_t *command_table;
+    size_t command_table_size;
+    char *response;
+    size_t response_size;
+} sCmdParser_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -25,5 +34,5 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool CMD_API_ProcessCommand(const char *command, size_t length, const sCommandEntry_t *command_table, size_t command_table_size,char *response, size_t response_size);
+bool CMD_API_ProcessCommand(const char *data, size_t length, const sCmdParser_t *command_context);
 #endif /* SOURCE_API_CMD_API_H_ */
