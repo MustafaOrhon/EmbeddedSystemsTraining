@@ -29,10 +29,10 @@ DEFINE_DEBUG_MODULE_TAG(CLI_APP);
  * Private constants
  *********************************************************************************************************************/
 static const sCommand_t g_command_table[eCliCmd_Last] = {
-    [eCliCmd_Set] = DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
-    [eCliCmd_Reset] = DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
-    [eCliCmd_Toggle] = DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
-    [eCliCmd_Blink] = DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
+    [eCliCmd_SetLed] = DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
+    [eCliCmd_ResetLed] = DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
+    [eCliCmd_ToggleLed] = DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
+    [eCliCmd_BlinkLed] = DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI Thread",
@@ -44,8 +44,8 @@ static const osThreadAttr_t g_cli_app_thread_attr = {
  *********************************************************************************************************************/
 static osThreadId_t g_cli_app_thread_id = NULL;
 static char g_cli_response_buffer[CLI_RESPONSE_BUFFER_SIZE] = {0};
-static sMessage_t received_message = {0};
-static sCmdParser_t command_parser = {
+static sMessage_t g_received_message = {0};
+static sCmdParser_t g_command_parser = {
     .command_table = g_command_table,
     .command_table_size = eCliCmd_Last,
     .response = g_cli_response_buffer,
@@ -64,15 +64,15 @@ static void CLI_APP_Thread (void *argument);
  *********************************************************************************************************************/
 static void CLI_APP_Thread (void *argument) {
     while (1) {
-        if (UART_API_ReceiveMessage(eUartApiPort_Debug, &received_message, osWaitForever) == false) {
+        if (UART_API_ReceiveMessage(eUartApiPort_Debug, &g_received_message, osWaitForever) == false) {
             continue;
         }
-        if (CMD_API_ProcessCommand(received_message.data, received_message.length, &command_parser)) {
-            TRACE_INFO(command_parser.response);
+        if (CMD_API_ProcessCommand(g_received_message.data, g_received_message.length, &g_command_parser) == true) {
+            TRACE_INFO(g_command_parser.response);
         } else {
-            TRACE_WARNING(command_parser.response);
+            TRACE_WARNING(g_command_parser.response);
         }
-        Memory_API_Free(received_message.data);
+        Memory_API_Free(g_received_message.data);
     }
 }
 /**********************************************************************************************************************

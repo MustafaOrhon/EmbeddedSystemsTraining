@@ -12,7 +12,10 @@
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
- 
+typedef enum {
+    eCmdSeparatorStatus_NotFound = -1,
+    eCmdSeparatorStatus_EmptyMessage = 0,
+} eCmdSeparatorStatusEnum_t;
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
@@ -35,10 +38,10 @@ static int CMD_API_FindSeparator (const char *data, size_t data_length, const ch
 static int CMD_API_FindSeparator (const char *data, size_t data_length, const char *separator, size_t separator_length) {
     const char *delimiter_pos = strstr(data, separator);
     if (delimiter_pos == NULL) {
-        return -1;
+        return eCmdSeparatorStatus_NotFound;
     }
     if ((delimiter_pos == data) && (data_length == separator_length)) {
-        return 0;
+        return eCmdSeparatorStatus_EmptyMessage;
     }
     return delimiter_pos - data;
 }
@@ -53,10 +56,10 @@ bool CMD_API_ProcessCommand (const char *data, size_t length, const sCmdParser_t
     for (size_t cmd = 0; cmd < command_context->command_table_size; ++cmd) {
         const sCommand_t *entry = &command_context->command_table[cmd];
         int separator_index = CMD_API_FindSeparator(data, length, entry->separator, entry->separator_length);
-        if (separator_index == -1) {
+        if (separator_index == eCmdSeparatorStatus_NotFound) {
             snprintf(command_context->response, command_context->response_size, "Command format error (missing '%s')\r", entry->separator);
             return false;
-        } else if (separator_index == 0) {
+        } else if (separator_index == eCmdSeparatorStatus_EmptyMessage) {
             snprintf(command_context->response, command_context->response_size, "Empty message\r");
             return false;
         }

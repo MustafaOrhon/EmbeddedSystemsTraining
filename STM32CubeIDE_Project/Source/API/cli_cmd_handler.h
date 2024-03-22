@@ -24,10 +24,10 @@ typedef bool (*sCmdHandler_t) (const sCommandParams_t *cmd_params);
 
 typedef enum {
     eCliCmd_First = 0,
-    eCliCmd_Set = eCliCmd_First,
-    eCliCmd_Reset,
-    eCliCmd_Toggle,
-    eCliCmd_Blink,
+    eCliCmd_SetLed = eCliCmd_First,
+    eCliCmd_ResetLed,
+    eCliCmd_ToggleLed,
+    eCliCmd_BlinkLed,
     eCliCmd_Last,
 } eCliCmdEnum_t;
 /**********************************************************************************************************************
