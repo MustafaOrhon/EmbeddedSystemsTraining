@@ -8,6 +8,7 @@
 #include "memory_api.h"
 #include "cmd_api.h"
 #include "debug_api.h"
+#include "math_utils.h"
 #include "cli_app.h"
 /**********************************************************************************************************************
  * Private definitions and macros
@@ -24,15 +25,21 @@ DEFINE_DEBUG_MODULE_TAG(CLI_APP);
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
- 
+typedef enum {
+    eCliCmd_SetLed,
+    eCliCmd_ResetLed,
+    eCliCmd_ToggleLed,
+    eCliCmd_BlinkLed,
+    eCliCmd_Last,
+} eCliCmdEnum_t;
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
 static const sCommand_t g_command_table[eCliCmd_Last] = {
-    [eCliCmd_SetLed] = DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
-    [eCliCmd_ResetLed] = DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
-    [eCliCmd_ToggleLed] = DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
-    [eCliCmd_BlinkLed] = DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
+    DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
+    DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
+    DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
+    DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI Thread",
@@ -47,7 +54,7 @@ static char g_cli_response_buffer[CLI_RESPONSE_BUFFER_SIZE] = {0};
 static sMessage_t g_received_message = {0};
 static sCmdParser_t g_command_parser = {
     .command_table = g_command_table,
-    .command_table_size = eCliCmd_Last,
+    .command_table_size = DEFINE_ARRAY_LEN(g_command_table),
     .response = g_cli_response_buffer,
     .response_size = CLI_RESPONSE_BUFFER_SIZE
 };

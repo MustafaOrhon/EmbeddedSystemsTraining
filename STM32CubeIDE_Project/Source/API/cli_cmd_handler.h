@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "cmd_api.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -13,23 +14,7 @@
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-typedef struct {
-    const char *params;
-    size_t length;
-    char *response;
-    size_t response_size;
-} sCommandParams_t;
 
-typedef bool (*sCmdHandler_t) (const sCommandParams_t *cmd_params);
-
-typedef enum {
-    eCliCmd_First = 0,
-    eCliCmd_SetLed = eCliCmd_First,
-    eCliCmd_ResetLed,
-    eCliCmd_ToggleLed,
-    eCliCmd_BlinkLed,
-    eCliCmd_Last,
-} eCliCmdEnum_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
