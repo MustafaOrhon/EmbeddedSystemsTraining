@@ -8,7 +8,8 @@
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_tim.h"
-#include "gpio_driver.h"
+#include "led_api.h"
+#include "led_app.h"
 #include "uart_api.h"
 #include "memory_api.h"
 #include "cli_app.h"
@@ -94,9 +95,6 @@ int main (void) {
     HAL_Init();
     SystemClock_Config();
     TIM13_Init();
-    if (GPIO_Driver_Init() == false) {
-        while(1);
-    }
     if (osKernelInitialize() != osOK) {
         while (1);
     }
@@ -109,7 +107,13 @@ int main (void) {
     if (UART_API_Init(eUartApiPort_Debug, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {
         while(1);
     }
+    if (LED_API_Init() == false) {
+        while(1);
+    }
     if (CLI_APP_Init() == false) {
+        while(1);
+    }
+    if (LED_APP_Init()== false) {
         while(1);
     }
     if (osKernelStart() != osOK) {

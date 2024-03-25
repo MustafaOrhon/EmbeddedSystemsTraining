@@ -42,8 +42,8 @@ static const sCommand_t g_command_table[eCliCmd_Last] = {
     DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
-    .name = "CLI Thread",
-    .stack_size = 512,
+    .name = "CLI_Thread",
+    .stack_size = 128 * 8,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************
