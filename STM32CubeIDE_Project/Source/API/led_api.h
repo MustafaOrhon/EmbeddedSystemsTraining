@@ -8,7 +8,7 @@
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eLedApi_First = 0,
+    eLedApi_First,
     eLedApi_GpsFix = eLedApi_First,
     eLedApi_Status,
     eLedApi_Last
@@ -24,7 +24,6 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_Init(void);
 bool LED_API_TurnOn(eLedApiNameEnum_t led);
 bool LED_API_TurnOff(eLedApiNameEnum_t led);
 bool LED_API_Toggle(eLedApiNameEnum_t led);

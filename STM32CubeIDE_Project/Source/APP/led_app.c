@@ -16,13 +16,13 @@
 typedef struct {
     osTimerId_t timer_id;
     uint32_t blink_counts;
-}sLedAppWorkData_t;
+} sLedAppWorkData_t;
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
 static const osThreadAttr_t g_led_app_thread_attr = {
     .name = "LED_APP_Thread",
-    .stack_size = 512,
+    .stack_size = 256,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************
@@ -34,7 +34,7 @@ static sLedAppWorkData_t g_led_app_dynamic_lut[eLedApi_Last] = {
 };
 static osMessageQueueId_t g_led_app_queue = NULL;
 static osThreadId_t g_led_app_thread_id = NULL;
-static sLedAppCmd_t received_cmd;
+static sLedAppCmd_t g_received_cmd = {0};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -44,51 +44,67 @@ static sLedAppCmd_t received_cmd;
  *********************************************************************************************************************/
 static void LED_Blink_Callback(void *argument);
 static void LED_APP_Thread(void *argument);
+static bool LED_APP_Blink(uint32_t led, uint32_t total_time, uint32_t frequency);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-static void LED_Blink_Callback(void *argument) {
-    eLedApiNameEnum_t led = (eLedApiNameEnum_t)argument;
+static void LED_Blink_Callback (void *argument) {
+    eLedApiNameEnum_t led = (eLedApiNameEnum_t) argument;
     if (g_led_app_dynamic_lut[led].blink_counts > 0) {
         LED_API_Toggle(led);
         g_led_app_dynamic_lut[led].blink_counts--;
     } else {
         osTimerStop(g_led_app_dynamic_lut[led].timer_id);
+        LED_API_TurnOff(led);
     }
 }
-static void LED_APP_Thread(void *argument) {
+
+static bool LED_APP_Blink (uint32_t led, uint32_t total_time, uint32_t frequency) {
+    if ((led < eLedApi_First) || (led >= eLedApi_Last) || (frequency == 0)) {
+        return false;
+    }
+    if (g_led_app_dynamic_lut[led].timer_id == NULL) {
+        return false;
+    }
+    uint32_t period = 1000 / frequency;
+    g_led_app_dynamic_lut[led].blink_counts = total_time * frequency;
+    return osTimerStart(g_led_app_dynamic_lut[led].timer_id, period) == osOK;
+}
+
+static void LED_APP_Thread (void *argument) {
     while (1) {
-        if (osMessageQueueGet(g_led_app_queue, &received_cmd, NULL, osWaitForever) == osOK) {
-            switch (received_cmd.cmd) {
-                case eLedAppCmd_Set: {
-                    sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)received_cmd.data;
-                    LED_API_TurnOn(cmd_params->led_number);
-                    break;
-                }
-                case eLedAppCmd_Reset: {
-                    sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)received_cmd.data;
-                    LED_API_TurnOff(cmd_params->led_number);
-                    break;
-                }
-                case eLedAppCmd_Toggle: {
-                    sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)received_cmd.data;
-                    LED_API_Toggle(cmd_params->led_number);
-                    break;
-                }
-                case eLedAppCmd_Blink: {
-                    sBlinkCommandParams_t *blink_params = (sBlinkCommandParams_t *)received_cmd.data;
-                    LED_APP_Blink(blink_params->led_number, blink_params->time, blink_params->frequency);
-                    break;
-                }
-            }
-            Memory_API_Free(received_cmd.data);
+        if (osMessageQueueGet(g_led_app_queue, &g_received_cmd, NULL, osWaitForever) != osOK) {
+            continue;
         }
+        switch (g_received_cmd.cmd) {
+            case eLedAppCmd_Set: {
+                sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)g_received_cmd.data;
+                LED_API_TurnOn(cmd_params->led_number);
+                break;
+            }
+            case eLedAppCmd_Reset: {
+                sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)g_received_cmd.data;
+                LED_API_TurnOff(cmd_params->led_number);
+                break;
+            }
+            case eLedAppCmd_Toggle: {
+                sLedBasicCommandParams_t *cmd_params = (sLedBasicCommandParams_t *)g_received_cmd.data;
+                LED_API_Toggle(cmd_params->led_number);
+                break;
+            }
+            case eLedAppCmd_Blink: {
+                sBlinkCommandParams_t *blink_params = (sBlinkCommandParams_t *) g_received_cmd.data;
+                LED_APP_Blink(blink_params->led_number, blink_params->time, blink_params->frequency);
+                break;
+            }
+        }
+        Memory_API_Free(g_received_cmd.data);
     }
 }
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool LED_APP_Init(void) {
+bool LED_APP_Init (void) {
     if (g_led_app_queue == NULL) {
         g_led_app_queue = osMessageQueueNew(LED_APP_QUEUE_SIZE, sizeof(sLedAppCmd_t), NULL);
         if (g_led_app_queue == NULL) {
@@ -112,19 +128,7 @@ bool LED_APP_Init(void) {
     return true;
 }
 
-bool LED_APP_Blink (uint32_t led, uint32_t total_time, uint32_t frequency) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last) || (frequency == 0)) {
-        return false;
-    }
-    if (g_led_app_dynamic_lut[led].timer_id == NULL) {
-        return false;
-    }
-    uint32_t period = 1000 / frequency;
-    g_led_app_dynamic_lut[led].blink_counts = total_time * frequency;
-    return osTimerStart(g_led_app_dynamic_lut[led].timer_id, period) == osOK;
-}
-
-bool LED_APP_SendCmd (const sLedAppCmd_t *params) {
+bool LED_APP_AddTask  (const sLedAppCmd_t *params) {
     if (params == NULL) {
         return false;
     }
@@ -135,5 +139,5 @@ bool LED_APP_SendCmd (const sLedAppCmd_t *params) {
         return false;
     }
     osStatus_t status = osMessageQueuePut(g_led_app_queue, params, 0, osWaitForever);
-    return status == osOK;
+    return (status == osOK);
 }

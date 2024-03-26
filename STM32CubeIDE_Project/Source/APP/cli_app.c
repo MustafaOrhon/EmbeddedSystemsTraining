@@ -43,7 +43,7 @@ static const sCommand_t g_command_table[eCliCmd_Last] = {
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI_Thread",
-    .stack_size = 128 * 8,
+    .stack_size = 512,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************

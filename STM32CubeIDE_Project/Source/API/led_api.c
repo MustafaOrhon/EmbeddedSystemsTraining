@@ -19,8 +19,8 @@ typedef struct {
  * Private constants
  *********************************************************************************************************************/
 static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
-    [eLedApi_GpsFix] = {eGpioDriverPin_GPSFixLedPin, true},
-    [eLedApi_Status] = {eGpioDriverPin_StatLedPin, false}
+    [eLedApi_GpsFix] = {.pin = eGpioDriverPin_GPSFixLedPin, .is_inverted = true},
+    [eLedApi_Status] = {.pin = eGpioDriverPin_StatLedPin, .is_inverted = false}
 };
 /**********************************************************************************************************************
  * Private variables
@@ -41,10 +41,6 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
- bool LED_API_Init(void) {
-     return GPIO_Driver_Init();
- }
-
  bool LED_API_TurnOn(eLedApiNameEnum_t led) {
      if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
          return false;

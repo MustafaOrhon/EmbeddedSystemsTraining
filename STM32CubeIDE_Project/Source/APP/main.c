@@ -8,7 +8,7 @@
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_tim.h"
-#include "led_api.h"
+#include "gpio_driver.h"
 #include "led_app.h"
 #include "uart_api.h"
 #include "memory_api.h"
@@ -101,13 +101,13 @@ int main (void) {
     if (Memory_API_Init() == false) {
         while(1);
     }
+    if (GPIO_Driver_Init() == false) {
+        while(1);
+    }
     if (DEBUG_API_Init() == false) {
         while(1);
     }
     if (UART_API_Init(eUartApiPort_Debug, 115200, DEBUG_UART_DELIMITER, DEBUG_UART_DELIMITER_LENGTH) == false) {
-        while(1);
-    }
-    if (LED_API_Init() == false) {
         while(1);
     }
     if (CLI_APP_Init() == false) {

@@ -12,13 +12,13 @@
  * Exported types
  *********************************************************************************************************************/
 typedef struct {
-    unsigned int led_number;
+    uint32_t led_number;
 } sLedBasicCommandParams_t;
 
 typedef struct {
-    unsigned int led_number;
-    unsigned int time;
-    unsigned int frequency;
+    uint32_t led_number;
+    uint32_t time;
+    uint32_t frequency;
 } sBlinkCommandParams_t;
 
 typedef enum {
@@ -42,6 +42,5 @@ typedef struct {
  * Prototypes of exported functions
  *********************************************************************************************************************/
 bool LED_APP_Init(void);
-bool LED_APP_Blink(uint32_t led, uint32_t total_time, uint32_t frequency);
-bool LED_APP_SendCmd(const sLedAppCmd_t *params);
+bool LED_APP_AddTask (const sLedAppCmd_t *params);
 #endif /* SOURCE_APP_LED_APP_H_ */

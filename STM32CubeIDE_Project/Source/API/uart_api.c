@@ -126,7 +126,7 @@ static void UART_API_Thread (void *argument) {
                     g_uart_api_dynamic_lut[port].buffer = Memory_API_Calloc(g_uart_api_static_lut[port].max_message_size, sizeof(char));
                     g_uart_api_dynamic_lut[port].index = 0;
                     if (g_uart_api_dynamic_lut[port].buffer == NULL) {
-                        TRACE_ERROR("Memory allocation failed.\r");
+                        TRACE_ERROR("Internal Error\r");
                         continue;
                     }
                     g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
@@ -143,6 +143,8 @@ static void UART_API_Thread (void *argument) {
                             break;
                         }
                         if (UART_API_IsDelimiterReceived(&g_uart_api_dynamic_lut[port]) == true) {
+                            g_uart_api_dynamic_lut[port].index -= g_uart_api_dynamic_lut[port].delimiter_length;
+                            g_uart_api_dynamic_lut[port].buffer[g_uart_api_dynamic_lut[port].index] = '\0';
                             g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
                             break;
                         }
