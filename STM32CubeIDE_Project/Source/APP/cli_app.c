@@ -36,14 +36,14 @@ typedef enum {
  * Private constants
  *********************************************************************************************************************/
 static const sCommand_t g_command_table[eCliCmd_Last] = {
-    DEFINE_CMD(led_set, CLI_CMD_SetHandler, ":"),
-    DEFINE_CMD(led_reset, CLI_CMD_ResetHandler, ":"),
-    DEFINE_CMD(led_toggle, CLI_CMD_ToggleHandler, ":"),
-    DEFINE_CMD(led_blink, CLI_CMD_BlinkHandler, ":"),
+    DEFINE_CMD(led_set, CLI_CMD_LedSetHandler, ":"),
+    DEFINE_CMD(led_reset, CLI_CMD_LedResetHandler, ":"),
+    DEFINE_CMD(led_toggle, CLI_CMD_LedToggleHandler, ":"),
+    DEFINE_CMD(led_blink, CLI_CMD_LedBlinkHandler, ":"),
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI_Thread",
-    .stack_size = 512,
+    .stack_size = 4 * 128,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************

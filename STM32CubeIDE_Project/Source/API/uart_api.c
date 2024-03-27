@@ -56,7 +56,7 @@ static const sUartApiDesc_t g_uart_api_static_lut[eUartApiPort_Last] = {
 };
 static const osThreadAttr_t g_uart_api_thread_attr = {
     .name = "UART API Thread",
-    .stack_size = 512,
+    .stack_size = 4 * 128,
     .priority = osPriorityNormal,
 };
 static const osMutexAttr_t g_uart_api_mutex_attrs[eUartApiPort_Last] = {

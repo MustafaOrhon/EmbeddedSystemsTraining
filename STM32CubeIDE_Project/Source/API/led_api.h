@@ -27,4 +27,5 @@ typedef enum {
 bool LED_API_TurnOn(eLedApiNameEnum_t led);
 bool LED_API_TurnOff(eLedApiNameEnum_t led);
 bool LED_API_Toggle(eLedApiNameEnum_t led);
+const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
 #endif /* SOURCE_API_LED_API_H_ */

@@ -61,3 +61,14 @@ bool LED_API_Toggle (eLedApiNameEnum_t led) {
     }
     return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
 }
+
+const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
+    switch (led) {
+        case eLedApi_GpsFix:
+            return "GNSS Fix";
+        case eLedApi_Status:
+            return "Status";
+        default:
+            return "Unknown LED";
+    }
+}

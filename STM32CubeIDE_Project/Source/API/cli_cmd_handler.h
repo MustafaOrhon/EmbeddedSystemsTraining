@@ -1,4 +1,4 @@
-#ifndef SOURCE_API_CLI_CMD_HANDLER_H_
+    #ifndef SOURCE_API_CLI_CMD_HANDLER_H_
 #define SOURCE_API_CLI_CMD_HANDLER_H_
 /**********************************************************************************************************************
  * Includes
@@ -22,8 +22,8 @@
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool CLI_CMD_SetHandler(const sCommandParams_t *cmd_params);
-bool CLI_CMD_ResetHandler(const sCommandParams_t *cmd_params);
-bool CLI_CMD_ToggleHandler(const sCommandParams_t *cmd_params);
-bool CLI_CMD_BlinkHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedSetHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedResetHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedToggleHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedBlinkHandler(const sCommandParams_t *cmd_params);
 #endif /* SOURCE_API_CLI_CMD_HANDLER_H_ */
