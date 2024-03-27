@@ -22,7 +22,7 @@ typedef struct {
  *********************************************************************************************************************/
 static const osThreadAttr_t g_led_app_thread_attr = {
     .name = "LED_APP_Thread",
-    .stack_size = 256,
+    .stack_size = 384,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************
@@ -93,7 +93,7 @@ static void LED_APP_Thread (void *argument) {
                 break;
             }
             case eLedAppCmd_Blink: {
-                sBlinkCommandParams_t *blink_params = (sBlinkCommandParams_t *) g_received_cmd.data;
+                sBlinkCommandParams_t *blink_params = (sBlinkCommandParams_t *)g_received_cmd.data;
                 LED_APP_Blink(blink_params->led_number, blink_params->time, blink_params->frequency);
                 break;
             }
@@ -128,7 +128,7 @@ bool LED_APP_Init (void) {
     return true;
 }
 
-bool LED_APP_AddTask  (const sLedAppCmd_t *params) {
+bool LED_APP_AddTask (const sLedAppCmd_t *params) {
     if (params == NULL) {
         return false;
     }

@@ -3,6 +3,7 @@
  *********************************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include "debug_api.h"
 #include "memory_api.h"
@@ -53,19 +54,22 @@ static bool CLI_CMD_CheckCmdParams (const sCommandParams_t *cmd_params) {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool CLI_CMD_SetHandler(const sCommandParams_t *cmd_params) {
+bool CLI_CMD_SetHandler (const sCommandParams_t *cmd_params) {
     if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
         return false;
     }
-    char *end_ptr = NULL;
-    uint32_t led_number;
-    if (!isdigit((unsigned char)cmd_params->params[0])) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: Expected number at start.\r");
+    if (isdigit((unsigned char)cmd_params->params[0]) == 0) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
         return false;
     }
-    led_number = strtoul(cmd_params->params, &end_ptr, 10);
-    if (cmd_params->params == end_ptr || *end_ptr != '\0' || led_number > HANDLER_API_MAX_LED_NUMBER || led_number < HANDLER_API_MIN_LED_NUMBER) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: Wrong format or out of range.\r");
+    char *end_ptr = NULL;
+    uint32_t led_number = strtoul(cmd_params->params, &end_ptr, 10);
+    if ((cmd_params->params == end_ptr) || (*end_ptr != '\0')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number is incorrect format.\r");
+        return false;
+    }
+    if ((led_number > HANDLER_API_MAX_LED_NUMBER) || (led_number < HANDLER_API_MIN_LED_NUMBER)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number out of range.\r");
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -75,12 +79,12 @@ bool CLI_CMD_SetHandler(const sCommandParams_t *cmd_params) {
     }
     led_params->led_number = led_number;
     sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Set, .data = led_params};
-    if (LED_APP_AddTask (&led_app_cmd) == false) {
-        snprintf(cmd_params->response, cmd_params->response_size, "LED task queue is full.\r");
+    if (LED_APP_AddTask(&led_app_cmd) == false) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Error: LED task queue is full.\r");
         Memory_API_Free(led_params);
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size, "Set Handler Executed!\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "LED task enqueued!\r");
     return true;
 }
 
@@ -88,10 +92,18 @@ bool CLI_CMD_ResetHandler (const sCommandParams_t *cmd_params) {
     if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
         return false;
     }
+    if (isdigit((unsigned char)cmd_params->params[0]) == 0) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+        return false;
+    }
     char *end_ptr = NULL;
     uint32_t led_number = strtoul(cmd_params->params, &end_ptr, 10);
-    if (cmd_params->params == end_ptr || *end_ptr != '\0' || led_number > HANDLER_API_MAX_LED_NUMBER || led_number < HANDLER_API_MIN_LED_NUMBER) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+    if ((cmd_params->params == end_ptr) || (*end_ptr != '\0')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number is incorrect format.\r");
+        return false;
+    }
+    if ((led_number > HANDLER_API_MAX_LED_NUMBER) || (led_number < HANDLER_API_MIN_LED_NUMBER)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number out of range.\r");
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -101,12 +113,12 @@ bool CLI_CMD_ResetHandler (const sCommandParams_t *cmd_params) {
     }
     led_params->led_number = led_number;
     sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Reset, .data = led_params};
-    if (LED_APP_AddTask (&led_app_cmd) == false) {
-        snprintf(cmd_params->response, cmd_params->response_size, "LED task queue is full.\r");
+    if (LED_APP_AddTask(&led_app_cmd) == false) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Error: LED task queue is full.\r");
         Memory_API_Free(led_params);
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size, "Reset Handler Executed!\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "LED task enqueued!\r");
     return true;
 }
 
@@ -114,10 +126,18 @@ bool CLI_CMD_ToggleHandler (const sCommandParams_t *cmd_params) {
     if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
         return false;
     }
+    if (isdigit((unsigned char)cmd_params->params[0]) == 0) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+        return false;
+    }
     char *end_ptr = NULL;
     uint32_t led_number = strtoul(cmd_params->params, &end_ptr, 10);
-    if (cmd_params->params == end_ptr || *end_ptr != '\0' || led_number > HANDLER_API_MAX_LED_NUMBER || led_number < HANDLER_API_MIN_LED_NUMBER) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+    if ((cmd_params->params == end_ptr) || (*end_ptr != '\0')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number is incorrect format.\r");
+        return false;
+    }
+    if ((led_number > HANDLER_API_MAX_LED_NUMBER) || (led_number < HANDLER_API_MIN_LED_NUMBER)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: LED number out of range.\r");
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -127,36 +147,51 @@ bool CLI_CMD_ToggleHandler (const sCommandParams_t *cmd_params) {
     }
     led_params->led_number = led_number;
     sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Toggle, .data = led_params};
-    if (LED_APP_AddTask (&led_app_cmd) == false) {
-        snprintf(cmd_params->response, cmd_params->response_size, "LED task queue is full.\r");
+    if (LED_APP_AddTask(&led_app_cmd) == false) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Error: LED task queue is full.\r");
         Memory_API_Free(led_params);
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size, "Toggle Handler Executed!\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "LED task enqueued!\r");
     return true;
 }
 
-bool CLI_CMD_BlinkHandler(const sCommandParams_t *cmd_params) {
+bool CLI_CMD_BlinkHandler (const sCommandParams_t *cmd_params) {
     if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
         return false;
     }
-    const char *param_ptr = cmd_params->params;
+    const char *led_command_delimiter = ",";
+    char *saveptr = NULL;
+    char *token = NULL;
+    token = strtok_r((char *)cmd_params->params, led_command_delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing LED number\r");
+        return false;
+    }
     char *end_ptr = NULL;
-    uint32_t led_number = strtoul(param_ptr, &end_ptr, 10);
-    if (param_ptr == end_ptr || *end_ptr != ',' || led_number > HANDLER_API_MAX_LED_NUMBER || led_number < HANDLER_API_MIN_LED_NUMBER) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+    uint32_t led_number = strtoul(token, &end_ptr, 10);
+    if ((*end_ptr != '\0') || (led_number > HANDLER_API_MAX_LED_NUMBER) || (led_number < HANDLER_API_MIN_LED_NUMBER)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid LED number\r");
         return false;
     }
-    param_ptr = end_ptr + 1;
-    uint32_t time = strtoul(param_ptr, &end_ptr, 10);
-    if (param_ptr == end_ptr || *end_ptr != ',' || time > HANDLER_API_MAX_TIME || time < HANDLER_API_MIN_TIME) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+    token = strtok_r(NULL, led_command_delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing time parameter.\r");
         return false;
     }
-    param_ptr = end_ptr + 1;
-    uint32_t frequency = strtoul(param_ptr, &end_ptr, 10);
-    if (param_ptr == end_ptr || *end_ptr != '\0' || frequency > HANDLER_API_MAX_BLINK_FREQ || frequency < HANDLER_API_MIN_BLINK_FREQ) {
-        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input\r");
+    uint32_t time = strtoul(token, &end_ptr, 10);
+    if ((*end_ptr != '\0') || (time > HANDLER_API_MAX_TIME) || (time < HANDLER_API_MIN_TIME)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid time\r");
+        return false;
+    }
+    token = strtok_r(NULL, led_command_delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid Input: Missing frequency\r");
+        return false;
+    }
+    uint32_t frequency = strtoul(token, &end_ptr, 10);
+    if ((*end_ptr != '\0') || (frequency > HANDLER_API_MAX_BLINK_FREQ) || (frequency < HANDLER_API_MIN_BLINK_FREQ)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid frequency\r");
         return false;
     }
     sBlinkCommandParams_t *blink_params = (sBlinkCommandParams_t *)Memory_API_Malloc(sizeof(sBlinkCommandParams_t));
@@ -168,11 +203,11 @@ bool CLI_CMD_BlinkHandler(const sCommandParams_t *cmd_params) {
     blink_params->time = time;
     blink_params->frequency = frequency;
     sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Blink, .data = blink_params};
-    if (LED_APP_AddTask (&led_app_cmd) == false) {
+    if (LED_APP_AddTask(&led_app_cmd) == false) {
         snprintf(cmd_params->response, cmd_params->response_size, "LED task queue is full.\r");
         Memory_API_Free(blink_params);
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size, "Blink Handler Executed!\r");
+    snprintf(cmd_params->response, cmd_params->response_size, "LED task enqueued!\r");
     return true;
 }

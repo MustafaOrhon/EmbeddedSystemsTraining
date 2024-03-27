@@ -41,23 +41,23 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
- bool LED_API_TurnOn(eLedApiNameEnum_t led) {
-     if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-         return false;
-     }
-     return GPIO_Driver_WritePin(g_led_api_mapping[led].pin,!(g_led_api_mapping[led].is_inverted));
- }
+bool LED_API_TurnOn (eLedApiNameEnum_t led) {
+    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+        return false;
+    }
+    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, !(g_led_api_mapping[led].is_inverted));
+}
 
- bool LED_API_TurnOff(eLedApiNameEnum_t led) {
-     if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-         return false;
-     }
-     return GPIO_Driver_WritePin(g_led_api_mapping[led].pin,g_led_api_mapping[led].is_inverted);
- }
+bool LED_API_TurnOff (eLedApiNameEnum_t led) {
+    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+        return false;
+    }
+    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, g_led_api_mapping[led].is_inverted);
+}
 
- bool LED_API_Toggle(eLedApiNameEnum_t led) {
-     if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-         return false;
-     }
-     return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
- }
+bool LED_API_Toggle (eLedApiNameEnum_t led) {
+    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+        return false;
+    }
+    return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
+}
