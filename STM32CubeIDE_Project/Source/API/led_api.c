@@ -7,7 +7,8 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
+#define LED_API_MAX_LED_NUMBER    1
+#define LED_API_MIN_LED_NUMBER    0
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -71,4 +72,8 @@ const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
         default:
             return "Unknown LED";
     }
+}
+
+bool LED_API_IsLEDValid (uint32_t led_number) {
+    return ((led_number >= LED_API_MIN_LED_NUMBER) && (led_number <= LED_API_MAX_LED_NUMBER));
 }

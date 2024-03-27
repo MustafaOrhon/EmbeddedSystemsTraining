@@ -42,5 +42,7 @@ typedef struct {
  * Prototypes of exported functions
  *********************************************************************************************************************/
 bool LED_APP_Init(void);
-bool LED_APP_AddTask (const sLedAppCmd_t *params);
+bool LED_APP_AddTask(const sLedAppCmd_t *params);
+bool LED_APP_IsTimeValid(uint32_t time);
+bool LED_APP_IsFrequencyValid(uint32_t frequency);
 #endif /* SOURCE_APP_LED_APP_H_ */

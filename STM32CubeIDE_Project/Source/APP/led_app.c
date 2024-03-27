@@ -10,6 +10,10 @@
  * Private definitions and macros
  *********************************************************************************************************************/
 #define LED_APP_QUEUE_SIZE 10
+#define LED_APP_MAX_TIME          60
+#define LED_APP_MIN_TIME          1
+#define LED_APP_MIN_BLINK_FREQ    1
+#define LED_APP_MAX_BLINK_FREQ    100
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -140,4 +144,12 @@ bool LED_APP_AddTask (const sLedAppCmd_t *params) {
     }
     osStatus_t status = osMessageQueuePut(g_led_app_queue, params, 0, osWaitForever);
     return (status == osOK);
+}
+
+bool LED_APP_IsTimeValid (uint32_t time) {
+    return ((time >= LED_APP_MIN_TIME) && (time <= LED_APP_MAX_TIME));
+}
+
+bool LED_APP_IsFrequencyValid (uint32_t frequency) {
+    return ((frequency >= LED_APP_MIN_BLINK_FREQ) && (frequency <= LED_APP_MAX_BLINK_FREQ));
 }

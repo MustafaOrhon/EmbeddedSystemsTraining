@@ -13,12 +13,7 @@
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define HANDLER_API_MAX_LED_NUMBER    1
-#define HANDLER_API_MIN_LED_NUMBER    0
-#define HANDLER_API_MAX_TIME          60
-#define HANDLER_API_MIN_TIME          1
-#define HANDLER_API_MIN_BLINK_FREQ    1
-#define HANDLER_API_MAX_BLINK_FREQ    100
+
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -39,9 +34,6 @@
  * Prototypes of private functions
  *********************************************************************************************************************/
 static bool CLI_CMD_CheckCmdParams (const sCommandParams_t *cmd_params);
-static bool LED_API_IsLEDValid (uint32_t led_number);
-static bool LED_API_IsTimeValid (uint32_t time);
-static bool LED_API_IsFrequencyValid (uint32_t frequency);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
@@ -54,18 +46,6 @@ static bool CLI_CMD_CheckCmdParams (const sCommandParams_t *cmd_params) {
         return false;
     }
     return true;
-}
-
-static bool LED_API_IsLEDValid (uint32_t led_number) {
-    return ((led_number >= HANDLER_API_MIN_LED_NUMBER) && (led_number <= HANDLER_API_MAX_LED_NUMBER));
-}
-
-static bool LED_API_IsTimeValid (uint32_t time) {
-    return ((time >= HANDLER_API_MIN_TIME) && (time <= HANDLER_API_MAX_TIME));
-}
-
-static bool LED_API_IsFrequencyValid (uint32_t frequency) {
-    return ((frequency >= HANDLER_API_MIN_BLINK_FREQ && frequency <= HANDLER_API_MAX_BLINK_FREQ));
 }
 /**********************************************************************************************************************
  * Definitions of exported functions
@@ -196,7 +176,7 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     uint32_t time = strtoul(token, &end_ptr, 10);
-    if ((*end_ptr != '\0') || (LED_API_IsTimeValid(time) == false)) {
+    if ((*end_ptr != '\0') || (LED_APP_IsTimeValid(time) == false)) {
         snprintf(cmd_params->response, cmd_params->response_size, "Invalid time\r");
         return false;
     }
@@ -206,7 +186,7 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     uint32_t frequency = strtoul(token, &end_ptr, 10);
-    if ((*end_ptr != '\0') || (LED_API_IsFrequencyValid(frequency) == false)) {
+    if ((*end_ptr != '\0') || (LED_APP_IsFrequencyValid(frequency) == false)) {
         snprintf(cmd_params->response, cmd_params->response_size, "Invalid frequency\r");
         return false;
     }
