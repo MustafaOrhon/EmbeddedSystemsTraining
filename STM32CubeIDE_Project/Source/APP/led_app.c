@@ -72,7 +72,7 @@ static bool LED_APP_Blink (uint32_t led, uint32_t total_time, uint32_t frequency
     }
     uint32_t period = 1000 / frequency;
     g_led_app_dynamic_lut[led].blink_counts = total_time * frequency;
-    return osTimerStart(g_led_app_dynamic_lut[led].timer_id, period) == osOK;
+    return (osTimerStart(g_led_app_dynamic_lut[led].timer_id, period) == osOK);
 }
 
 static void LED_APP_Thread (void *argument) {
