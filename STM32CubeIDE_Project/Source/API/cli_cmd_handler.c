@@ -18,15 +18,15 @@
  * Private typedef
  *********************************************************************************************************************/
 typedef enum {
-        eHandlerCodeEnum_First = 0,
-        eHandlerCodeEnum_Internal = eHandlerCodeEnum_First,
-        eHandlerCodeEnum_InvalidInput,
-        eHandlerCodeEnum_OutOfRange,
-        eHandlerCodeEnum_QueueFull,
-        eHandlerCodeEnum_MissingLED,
-        eHandlerCodeEnum_MissingTime,
-        eHandlerCodeEnum_MissingFrequency,
-        eHandlerCodeEnum_Last
+    eHandlerCodeEnum_First = 0,
+    eHandlerCodeEnum_Internal = eHandlerCodeEnum_First,
+    eHandlerCodeEnum_InvalidInput,
+    eHandlerCodeEnum_OutOfRange,
+    eHandlerCodeEnum_QueueFull,
+    eHandlerCodeEnum_MissingLED,
+    eHandlerCodeEnum_MissingTime,
+    eHandlerCodeEnum_MissingFrequency,
+    eHandlerCodeEnum_Last
 } eHandlerCodeEnum_t;
 /**********************************************************************************************************************
  * Private constants
@@ -114,7 +114,7 @@ bool CLI_CMD_LedSetHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     led_params->led_number = led_number;
-    sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Set, .data = led_params};
+    sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Set, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
         CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
         Memory_API_Free(led_params);
@@ -148,7 +148,7 @@ bool CLI_CMD_LedResetHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     led_params->led_number = led_number;
-    sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Reset, .data = led_params};
+    sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Reset, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
         CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
         Memory_API_Free(led_params);
@@ -182,7 +182,7 @@ bool CLI_CMD_LedToggleHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     led_params->led_number = led_number;
-    sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Toggle, .data = led_params};
+    sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Toggle, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
         CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
         Memory_API_Free(led_params);
@@ -238,12 +238,12 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
     blink_params->led_number = led_number;
     blink_params->time = time;
     blink_params->frequency = frequency;
-    sLedAppCmd_t led_app_cmd = {.cmd = eLedAppCmd_Blink, .data = blink_params};
+    sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Blink, .data = blink_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
         CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
         Memory_API_Free(blink_params);
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size, "Blinking %s LED for %u secs at %u Hz\r", LED_API_LedEnumToString(led_number), time, frequency);
+    snprintf(cmd_params->response, cmd_params->response_size, "Blinking %s LED for %u s at %u Hz\r", LED_API_LedEnumToString(led_number), time, frequency);
     return true;
 }

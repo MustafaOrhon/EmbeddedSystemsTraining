@@ -22,18 +22,18 @@ typedef struct {
 } sBlinkCommandParams_t;
 
 typedef enum {
-    eLedAppCmd_First = 0,
-    eLedAppCmd_Set = eLedAppCmd_First,
-    eLedAppCmd_Reset,
-    eLedAppCmd_Toggle,
-    eLedAppCmd_Blink,
-    eLedAppCmd_Last
-} eLedAppCmdEnum_t;
+    eLedAppTask_First = 0,
+    eLedAppTask_Set = eLedAppTask_First,
+    eLedAppTask_Reset,
+    eLedAppTask_Toggle,
+    eLedAppTask_Blink,
+    eLedAppTask_Last
+} eLedAppTaskEnum_t;
 
 typedef struct {
-    eLedAppCmdEnum_t cmd;
+    eLedAppTaskEnum_t task;
     void *data;
-} sLedAppCmd_t;
+} sLedAppTask_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -42,7 +42,7 @@ typedef struct {
  * Prototypes of exported functions
  *********************************************************************************************************************/
 bool LED_APP_Init(void);
-bool LED_APP_AddTask(const sLedAppCmd_t *params);
+bool LED_APP_AddTask(const sLedAppTask_t *params);
 bool LED_APP_IsTimeValid(uint32_t time);
 bool LED_APP_IsFrequencyValid(uint32_t frequency);
 #endif /* SOURCE_APP_LED_APP_H_ */
