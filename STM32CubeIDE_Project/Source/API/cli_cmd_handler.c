@@ -26,7 +26,6 @@ typedef enum {
         eHandlerCodeEnum_MissingLED,
         eHandlerCodeEnum_MissingTime,
         eHandlerCodeEnum_MissingFrequency,
-        eHandlerCodeEnum_Success,
         eHandlerCodeEnum_Last
 } eHandlerCodeEnum_t;
 /**********************************************************************************************************************
@@ -86,9 +85,6 @@ static void CLI_CMD_HandleResponse (char *response_buffer, size_t buffer_size, e
         case eHandlerCodeEnum_MissingFrequency:
             snprintf(response_buffer, buffer_size, "Missing frequency\r");
             break;
-        case eHandlerCodeEnum_Success:
-            snprintf(response_buffer, buffer_size, "Command successfully executed\r");
-            break;
     }
 }
 /**********************************************************************************************************************
@@ -124,7 +120,7 @@ bool CLI_CMD_LedSetHandler (const sCommandParams_t *cmd_params) {
         Memory_API_Free(led_params);
         return false;
     }
-    CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Success);
+    snprintf(cmd_params->response, cmd_params->response_size, "Turning on %s LED\r", LED_API_LedEnumToString(led_number));
     return true;
 }
 
@@ -158,7 +154,7 @@ bool CLI_CMD_LedResetHandler (const sCommandParams_t *cmd_params) {
         Memory_API_Free(led_params);
         return false;
     }
-    CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Success);
+    snprintf(cmd_params->response, cmd_params->response_size, "Turning off %s LED\r", LED_API_LedEnumToString(led_number));
     return true;
 }
 
@@ -192,7 +188,7 @@ bool CLI_CMD_LedToggleHandler (const sCommandParams_t *cmd_params) {
         Memory_API_Free(led_params);
         return false;
     }
-    CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Success);
+    snprintf(cmd_params->response, cmd_params->response_size, "Toggling %s LED\r", LED_API_LedEnumToString(led_number));
     return true;
 }
 
@@ -248,6 +244,6 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
         Memory_API_Free(blink_params);
         return false;
     }
-    CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Success);
+    snprintf(cmd_params->response, cmd_params->response_size, "Blinking %s LED for %u secs at %u Hz\r", LED_API_LedEnumToString(led_number), time, frequency);
     return true;
 }
