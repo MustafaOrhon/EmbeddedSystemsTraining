@@ -21,11 +21,9 @@ typedef enum {
     eHandlerCodeEnum_First = 0,
     eHandlerCodeEnum_Internal = eHandlerCodeEnum_First,
     eHandlerCodeEnum_InvalidInput,
-    eHandlerCodeEnum_OutOfRange,
-    eHandlerCodeEnum_QueueFull,
-    eHandlerCodeEnum_MissingLED,
-    eHandlerCodeEnum_MissingTime,
-    eHandlerCodeEnum_MissingFrequency,
+    eHandlerCodeEnum_ParameterOutOfRange,
+    eHandlerCodeEnum_TaskQueueFull,
+    eHandlerCodeEnum_MissingParameter,
     eHandlerCodeEnum_Last
 } eHandlerCodeEnum_t;
 /**********************************************************************************************************************
@@ -70,20 +68,14 @@ static void CLI_CMD_HandleResponse (char *response_buffer, size_t buffer_size, e
         case eHandlerCodeEnum_InvalidInput:
             snprintf(response_buffer, buffer_size, "Invalid Input\r");
             break;
-        case eHandlerCodeEnum_OutOfRange:
-            snprintf(response_buffer, buffer_size, "Invalid Input: LED number out of range.\r");
+        case eHandlerCodeEnum_ParameterOutOfRange:
+            snprintf(response_buffer, buffer_size, "Invalid input: parameter out of range.\r");
             break;
-        case eHandlerCodeEnum_QueueFull:
-            snprintf(response_buffer, buffer_size, "Error: LED task queue is full.\r");
+        case eHandlerCodeEnum_TaskQueueFull:
+            snprintf(response_buffer, buffer_size, "Timeout: task queue is full.\r");
             break;
-        case eHandlerCodeEnum_MissingLED:
-            snprintf(response_buffer, buffer_size, "Missing LED number\r");
-            break;
-        case eHandlerCodeEnum_MissingTime:
-            snprintf(response_buffer, buffer_size, "Missing time parameter.\r");
-            break;
-        case eHandlerCodeEnum_MissingFrequency:
-            snprintf(response_buffer, buffer_size, "Missing frequency\r");
+        case eHandlerCodeEnum_MissingParameter:
+            snprintf(response_buffer, buffer_size, "Invalid input: missing parameter\r");
             break;
     }
 }
@@ -105,7 +97,7 @@ bool CLI_CMD_LedSetHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     if (LED_API_IsLEDValid(led_number) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_OutOfRange);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_ParameterOutOfRange);
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -116,7 +108,7 @@ bool CLI_CMD_LedSetHandler (const sCommandParams_t *cmd_params) {
     led_params->led_number = led_number;
     sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Set, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
         Memory_API_Free(led_params);
         return false;
     }
@@ -139,7 +131,7 @@ bool CLI_CMD_LedResetHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     if (LED_API_IsLEDValid(led_number) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_OutOfRange);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_ParameterOutOfRange);
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -150,7 +142,7 @@ bool CLI_CMD_LedResetHandler (const sCommandParams_t *cmd_params) {
     led_params->led_number = led_number;
     sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Reset, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
         Memory_API_Free(led_params);
         return false;
     }
@@ -173,7 +165,7 @@ bool CLI_CMD_LedToggleHandler (const sCommandParams_t *cmd_params) {
         return false;
     }
     if (LED_API_IsLEDValid(led_number) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_OutOfRange);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_ParameterOutOfRange);
         return false;
     }
     sLedBasicCommandParams_t *led_params = (sLedBasicCommandParams_t *)Memory_API_Malloc(sizeof(sLedBasicCommandParams_t));
@@ -184,7 +176,7 @@ bool CLI_CMD_LedToggleHandler (const sCommandParams_t *cmd_params) {
     led_params->led_number = led_number;
     sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Toggle, .data = led_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
         Memory_API_Free(led_params);
         return false;
     }
@@ -201,18 +193,18 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
     char *token = NULL;
     token = strtok_r((char *)cmd_params->params, led_command_delimiter, &saveptr);
     if (token == NULL) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingLED);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingParameter);
         return false;
     }
     char *end_ptr = NULL;
     uint32_t led_number = strtoul(token, &end_ptr, 10);
     if ((*end_ptr != '\0') || (LED_API_IsLEDValid(led_number) == false)) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_OutOfRange);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_ParameterOutOfRange);
         return false;
     }
     token = strtok_r(NULL, led_command_delimiter, &saveptr);
     if (token == NULL) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingTime);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingParameter);
         return false;
     }
     uint32_t time = strtoul(token, &end_ptr, 10);
@@ -222,7 +214,7 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
     }
     token = strtok_r(NULL, led_command_delimiter, &saveptr);
     if (token == NULL) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingFrequency);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingParameter);
         return false;
     }
     uint32_t frequency = strtoul(token, &end_ptr, 10);
@@ -240,7 +232,7 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
     blink_params->frequency = frequency;
     sLedAppTask_t led_app_cmd = {.task = eLedAppTask_Blink, .data = blink_params};
     if (LED_APP_AddTask(&led_app_cmd) == false) {
-        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_QueueFull);
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
         Memory_API_Free(blink_params);
         return false;
     }
