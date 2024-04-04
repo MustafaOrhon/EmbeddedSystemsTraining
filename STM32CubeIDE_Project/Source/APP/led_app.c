@@ -14,6 +14,7 @@
 #define LED_APP_MIN_TIME          1
 #define LED_APP_MIN_BLINK_FREQ    1
 #define LED_APP_MAX_BLINK_FREQ    100
+#define LED_APP_QUEUE_WAIT_TIME   100
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -150,7 +151,7 @@ bool LED_APP_AddTask (const sLedAppTask_t *params) {
     if (g_led_app_queue == NULL) {
         return false;
     }
-    osStatus_t status = osMessageQueuePut(g_led_app_queue, params, 0, osWaitForever);
+    osStatus_t status = osMessageQueuePut(g_led_app_queue, params, 0, LED_APP_QUEUE_WAIT_TIME);
     return (status == osOK);
 }
 
