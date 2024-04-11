@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "debug_api.h"
 #include "memory_api.h"
+#include "uart_api.h"
 #include "led_app.h"
 #include "led_api.h"
+#include "record_sending.h"
 #include "cli_cmd_handler.h"
 /**********************************************************************************************************************
  * Private definitions and macros
@@ -239,3 +240,93 @@ bool CLI_CMD_LedBlinkHandler (const sCommandParams_t *cmd_params) {
     snprintf(cmd_params->response, cmd_params->response_size, "Blinking %s LED for %u s at %u Hz\r", LED_API_LedEnumToString(led_number), time, frequency);
     return true;
 }
+
+bool CLI_CMD_SendATHandler (const sCommandParams_t *cmd_params) {
+    if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
+        return false;
+    }
+    char *new_command = (char *)Memory_API_Malloc(cmd_params->length + 3);
+    if (new_command == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Internal Error.\r");
+        return false;
+    }
+    memcpy(new_command, cmd_params->params, cmd_params->length);
+    strcpy(new_command + cmd_params->length, "\r\n");
+    if (UART_API_SendString(eUartApiPort_Modem, new_command, cmd_params->length + 2) == false) {
+        snprintf(cmd_params->response, cmd_params->response_size, "AT Command Send Failed\r\n");
+        Memory_API_Free(new_command);
+        return false;
+    }
+    Memory_API_Free(new_command);
+    snprintf(cmd_params->response, cmd_params->response_size, "AT Command Sent Successfully\r\n");
+    return true;
+}
+
+bool CLI_CMD_StartTCPHandler(const sCommandParams_t *cmd_params) {
+    if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
+        return false;
+    }
+    const char *ip_port = (const char *)cmd_params->params;
+    char *ip_end = strchr(ip_port, ',');
+    if (ip_end == NULL) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingParameter);
+        return false;
+    }
+    char ip[16] = {0};
+    strncpy(ip, ip_port, ip_end - ip_port);
+    ip[ip_end - ip_port] = '\0';
+    uint16_t port = atoi(ip_end + 1);
+    sRecordSendingAPPCommandParams_t *tcp_params = (sRecordSendingAPPCommandParams_t *)Memory_API_Malloc(sizeof(sRecordSendingAPPCommandParams_t));
+    if (tcp_params == NULL) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Internal);
+        return false;
+    }
+    strncpy(tcp_params->ip, ip, sizeof(tcp_params->ip) - 1);
+    tcp_params->ip[sizeof(tcp_params->ip) - 1] = '\0';
+    tcp_params->port = port;
+    sRecordSendingAPPTask_t tcp_task;
+    tcp_task.task = eRecordSendingAPPTask_Start;
+    tcp_task.params = tcp_params;
+    if (RecordSending_APP_AddTask(&tcp_task) == false) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
+        Memory_API_Free(tcp_params);
+        return false;
+    }
+    snprintf(cmd_params->response, cmd_params->response_size, "Starting TCP connection to %s:%u\r", ip, port);
+    return true;
+}
+
+bool CLI_CMD_StopTCPHandler(const sCommandParams_t *cmd_params) {
+    if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
+        return false;
+    }
+    const char *ip_port = (const char *)cmd_params->params;
+    char *ip_end = strchr(ip_port, ',');
+    if (ip_end == NULL) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_MissingParameter);
+        return false;
+    }
+    char ip[16] = {0};
+    strncpy(ip, ip_port, ip_end - ip_port);
+    ip[ip_end - ip_port] = '\0';
+    uint16_t port = atoi(ip_end + 1);
+    sRecordSendingAPPCommandParams_t *tcp_params = (sRecordSendingAPPCommandParams_t *)Memory_API_Malloc(sizeof(sRecordSendingAPPCommandParams_t));
+    if (tcp_params == NULL) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_Internal);
+        return false;
+    }
+    strncpy(tcp_params->ip, ip, sizeof(tcp_params->ip) - 1);
+    tcp_params->ip[sizeof(tcp_params->ip) - 1] = '\0';
+    tcp_params->port = port;
+    sRecordSendingAPPTask_t tcp_task;
+    tcp_task.task = eRecordSendingAPPTask_Stop;
+    tcp_task.params = tcp_params;
+    if (RecordSending_APP_AddTask(&tcp_task) == false) {
+        CLI_CMD_HandleResponse(cmd_params->response, cmd_params->response_size, eHandlerCodeEnum_TaskQueueFull);
+        Memory_API_Free(tcp_params);
+        return false;
+    }
+    snprintf(cmd_params->response, cmd_params->response_size, "Stoping TCP connection to %s:%u\r", ip, port);
+    return true;
+}
+

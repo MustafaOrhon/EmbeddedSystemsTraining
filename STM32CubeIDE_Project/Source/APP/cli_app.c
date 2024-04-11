@@ -30,6 +30,9 @@ typedef enum {
     eCliCmd_ResetLed,
     eCliCmd_ToggleLed,
     eCliCmd_BlinkLed,
+    eCliCmd_SendAT,
+    eCliCmd_StartTCP,
+    eCliCmd_StopTCP,
     eCliCmd_Last,
 } eCliCmdEnum_t;
 /**********************************************************************************************************************
@@ -40,10 +43,13 @@ static const sCommand_t g_command_table[eCliCmd_Last] = {
     DEFINE_CMD(led_reset, CLI_CMD_LedResetHandler, ":"),
     DEFINE_CMD(led_toggle, CLI_CMD_LedToggleHandler, ":"),
     DEFINE_CMD(led_blink, CLI_CMD_LedBlinkHandler, ":"),
+    DEFINE_CMD(send_at, CLI_CMD_SendATHandler, ":"),
+    DEFINE_CMD(start_tcp, CLI_CMD_StartTCPHandler, ":"),
+    DEFINE_CMD(stop_tcp, CLI_CMD_StopTCPHandler, ":")
 };
 static const osThreadAttr_t g_cli_app_thread_attr = {
     .name = "CLI_Thread",
-    .stack_size = 4 * 128,
+    .stack_size = 4 * 200,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************

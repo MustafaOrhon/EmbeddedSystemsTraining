@@ -26,4 +26,7 @@ bool CLI_CMD_LedSetHandler(const sCommandParams_t *cmd_params);
 bool CLI_CMD_LedResetHandler(const sCommandParams_t *cmd_params);
 bool CLI_CMD_LedToggleHandler(const sCommandParams_t *cmd_params);
 bool CLI_CMD_LedBlinkHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_SendATHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_StartTCPHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_StopTCPHandler(const sCommandParams_t *cmd_params);
 #endif /* SOURCE_API_CLI_CMD_HANDLER_H_ */

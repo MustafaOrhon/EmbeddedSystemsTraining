@@ -14,6 +14,11 @@
 #include "memory_api.h"
 #include "cli_app.h"
 #include "debug_api.h"
+#include "modem_api.h"
+#include "sms_app.h"
+#include "sms_api.h"
+#include "record_sending.h"
+#include "network_app.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
@@ -114,6 +119,18 @@ int main (void) {
         while(1);
     }
     if (LED_APP_Init()== false) {
+        while(1);
+    }
+    if (MODEM_API_Init() == false) {
+        return false;
+    }
+    if (SMS_APP_Init() == false) {
+        while(1);
+    }
+    if (RecordSending_APP_Init() == false) {
+        while(1);
+    }
+    if (Network_APP_Init() == false) {
         while(1);
     }
     if (osKernelStart() != osOK) {

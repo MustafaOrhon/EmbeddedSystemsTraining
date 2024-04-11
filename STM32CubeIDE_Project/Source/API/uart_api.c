@@ -11,7 +11,7 @@
  * Private definitions and macros
  *********************************************************************************************************************/
 #define MESSAGE_QUEUE_SIZE          5
-#define UART1_MAX_MESSAGE_SIZE      32
+#define UART1_MAX_MESSAGE_SIZE      64
 #define UART2_MAX_MESSAGE_SIZE      1024
 #define MSG_QUEUE_PUT_TMO                    100
 #define MAX_DELIMITER_LENGTH                 10
@@ -139,6 +139,15 @@ static void UART_API_Thread (void *argument) {
                             g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
                             break;
                         }
+                        if (g_uart_api_dynamic_lut[port].index == 1 && byte == '>') {
+                            continue;
+                        }
+                        if (g_uart_api_dynamic_lut[port].index == 2 && g_uart_api_dynamic_lut[port].buffer[0] == '>' && byte == ' ') {
+                            g_uart_api_dynamic_lut[port].index --;
+                            g_uart_api_dynamic_lut[port].buffer[g_uart_api_dynamic_lut[port].index] = '\0';
+                            g_uart_api_dynamic_lut[port].state = eUartApiState_FlushData;
+                            break;
+                        }
                         if (byte != g_uart_api_dynamic_lut[port].delimiter[g_uart_api_dynamic_lut[port].delimiter_length - 1]) {
                             break;
                         }
@@ -155,7 +164,6 @@ static void UART_API_Thread (void *argument) {
                 }
                 case eUartApiState_FlushData: {
                     if (g_uart_api_dynamic_lut[port].index == 0) {
-                        TRACE_ERROR("No data collected to flush.\r");
                         g_uart_api_dynamic_lut[port].state = eUartApiState_CollectData;
                         break;
                     }

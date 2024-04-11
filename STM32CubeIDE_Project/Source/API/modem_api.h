@@ -1,11 +1,11 @@
-#ifndef SOURCE_API_CMD_API_H_
-#define SOURCE_API_CMD_API_H_
+#ifndef SOURCE_API_MODEM_API_H_
+#define SOURCE_API_MODEM_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -13,29 +13,37 @@
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-typedef struct {
-    const char *params;
-    size_t length;
-    char *response;
-    size_t response_size;
-} sCommandParams_t;
+typedef enum {
+    eModemStatus_Ok,
+    eModemStatus_Error,
+    eModemStatus_Timeout,
+    eModemStatus_Busy,
+    eModemStatus_ReadyToSendMessage,
+    eModemStatus_Unknown
+} eModemStatusEnum_t;
 
-typedef bool (*sCmdHandler_t) (const sCommandParams_t *cmd_params);
+typedef enum {
+    eQueueType_First = 0,
+    eQueueType_General = eQueueType_First,
+    eQueueType_SMS,
+    eQueueType_Last
+} eQueueTypeEnum_t;
+
+typedef enum {
+    eSmsStatus_Unknown = 0,
+    eSmsStatus_Unread,
+    eSmsStatus_Read,
+} eSmsStatusEnum_t;
 
 typedef struct {
-    const char *command;
-    size_t command_size;
-    sCmdHandler_t handler;
-    const char *separator;
-    size_t separator_length;
-} sCommand_t;
-
-typedef struct {
-    const sCommand_t *command_table;
-    size_t command_table_size;
-    char *response;
-    size_t response_size;
-} sCmdParser_t;
+    uint32_t index;
+    eSmsStatusEnum_t status;
+    char phone_number[16];
+    char originator_name[30];
+    uint64_t time_stamp;
+    char *message_content;
+    size_t message_content_len;
+} sSmsMessage_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -43,6 +51,12 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool CMD_API_ProcessCommand(const char *data, size_t length, const sCmdParser_t *command_context);
-bool CMD_API_CheckCmdParams (const sCommandParams_t *cmd_params);
-#endif /* SOURCE_API_CMD_API_H_ */
+bool MODEM_API_Init(void);
+eModemStatusEnum_t MODEM_API_SendAndWait(const char *cmd, uint32_t wait_time);
+eModemStatusEnum_t MODEM_API_SendAndWaitRepeat (const char *cmd, uint32_t wait_time, uint32_t repeat, uint32_t delay);
+bool Modem_API_Lock(void);
+bool Modem_API_Unlock(void);
+void Modem_API_SetCommandResult(eModemStatusEnum_t status);
+bool MODEM_API_ReceiveFromQueue(eQueueTypeEnum_t queue, void *message, uint32_t queue_wait_time);
+bool MODEM_API_PutToQueue(eQueueTypeEnum_t queue, const void *message, uint32_t queue_wait_time);
+#endif /* SOURCE_API_MODEM_API_H_ */

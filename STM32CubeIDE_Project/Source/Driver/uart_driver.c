@@ -10,7 +10,7 @@
  *********************************************************************************************************************/
 #define UART_DRIVER_PREEMPT_PRIORITY    5
 #define UART_DRIVER_SUB_PRIORITY        0
-#define UART1_RING_BUFFER_SIZE          32
+#define UART1_RING_BUFFER_SIZE          64
 #define UART2_RING_BUFFER_SIZE          1024
 /**********************************************************************************************************************
  * Private typedef

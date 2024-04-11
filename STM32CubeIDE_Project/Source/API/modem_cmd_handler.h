@@ -1,11 +1,10 @@
-#ifndef SOURCE_API_CMD_API_H_
-#define SOURCE_API_CMD_API_H_
+#ifndef SOURCE_API_MODEM_CMD_HANDLER_H_
+#define SOURCE_API_MODEM_CMD_HANDLER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include "cmd_api.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
@@ -13,29 +12,7 @@
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-typedef struct {
-    const char *params;
-    size_t length;
-    char *response;
-    size_t response_size;
-} sCommandParams_t;
 
-typedef bool (*sCmdHandler_t) (const sCommandParams_t *cmd_params);
-
-typedef struct {
-    const char *command;
-    size_t command_size;
-    sCmdHandler_t handler;
-    const char *separator;
-    size_t separator_length;
-} sCommand_t;
-
-typedef struct {
-    const sCommand_t *command_table;
-    size_t command_table_size;
-    char *response;
-    size_t response_size;
-} sCmdParser_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -43,6 +20,12 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool CMD_API_ProcessCommand(const char *data, size_t length, const sCmdParser_t *command_context);
-bool CMD_API_CheckCmdParams (const sCommandParams_t *cmd_params);
-#endif /* SOURCE_API_CMD_API_H_ */
+bool MODEM_CMD_OkHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_ErrorHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_CmglHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_CmgrHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_SendSMSHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_CMTIHandler(const sCommandParams_t *cmd_params);
+bool MODEM_CMD_ETLHandler (const sCommandParams_t *cmd_params);
+bool MODEM_CMD_EindHandler (const sCommandParams_t *cmd_params);
+#endif /* SOURCE_API_MODEM_CMD_HANDLER_H_ */
