@@ -26,7 +26,7 @@ DEFINE_DEBUG_MODULE_TAG(NETWORK_APP);
 static const osThreadAttr_t g_network_app_thread_attr = {
     .name = "NETWORK_APP_Thread",
     .stack_size = 4 * 200,
-    .priority = osPriorityNormal,
+    .priority = osPriorityAboveNormal,
 };
 /**********************************************************************************************************************
  * Private variables

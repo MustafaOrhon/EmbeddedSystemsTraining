@@ -144,8 +144,27 @@ typedef struct {
         .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
         .pin_af_mode = LL_GPIO_AF_7,
         .clock = LL_AHB1_GRP1_PERIPH_GPIOD
+    },
+    [eGpioDriverPin_GnssUartTxPin] = {
+        .port = GPIOE,
+        .pin_number = LL_GPIO_PIN_8,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_8,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOE
+    },
+    [eGpioDriverPin_GnssUartRxPin] = {
+        .port = GPIOE,
+        .pin_number = LL_GPIO_PIN_7,
+        .pin_mode = LL_GPIO_MODE_ALTERNATE,
+        .pin_otype = LL_GPIO_OUTPUT_PUSHPULL,
+        .pin_pupd_control = LL_GPIO_PULL_NO,
+        .pin_speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+        .pin_af_mode = LL_GPIO_AF_8,
+        .clock = LL_AHB1_GRP1_PERIPH_GPIOE
     }
-
 };
 /**********************************************************************************************************************
  * Private variables

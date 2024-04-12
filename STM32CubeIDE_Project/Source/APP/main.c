@@ -18,6 +18,7 @@
 #include "sms_app.h"
 #include "sms_api.h"
 #include "record_sending.h"
+#include "gnss_api.h"
 #include "network_app.h"
 /**********************************************************************************************************************
  * Private definitions and macros
@@ -131,6 +132,9 @@ int main (void) {
         while(1);
     }
     if (Network_APP_Init() == false) {
+        while(1);
+    }
+    if (GNSS_API_Init() == false) {
         while(1);
     }
     if (osKernelStart() != osOK) {

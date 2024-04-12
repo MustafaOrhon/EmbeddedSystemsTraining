@@ -9,12 +9,14 @@
 #include "uart_api.h"
 #include "led_app.h"
 #include "led_api.h"
+#include "sms_api.h"
+#include "gnss_api.h"
 #include "record_sending.h"
 #include "cli_cmd_handler.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-
+#define SMS_GNSS_BUFFER_SIZE 256
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -34,7 +36,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
- 
+static char g_sms_gnss_buffer[SMS_GNSS_BUFFER_SIZE] = {0};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -293,6 +295,7 @@ bool CLI_CMD_StartTCPHandler(const sCommandParams_t *cmd_params) {
         return false;
     }
     snprintf(cmd_params->response, cmd_params->response_size, "Starting TCP connection to %s:%u\r", ip, port);
+    SMS_API_SendSms("Command processed!");
     return true;
 }
 
@@ -327,6 +330,15 @@ bool CLI_CMD_StopTCPHandler(const sCommandParams_t *cmd_params) {
         return false;
     }
     snprintf(cmd_params->response, cmd_params->response_size, "Stoping TCP connection to %s:%u\r", ip, port);
+    SMS_API_SendSms("Command processed!");
     return true;
 }
-
+bool CLI_CMD_GetLocationHandler(const sCommandParams_t *cmd_params){
+    if (CLI_CMD_CheckCmdParams(cmd_params) == false) {
+        return false;
+    }
+    GNSS_API_FormatGNSSData(g_sms_gnss_buffer, SMS_GNSS_BUFFER_SIZE);
+    SMS_API_SendSms(g_sms_gnss_buffer);
+    snprintf(cmd_params->response, cmd_params->response_size, "Location Sent!\r\n");
+    return true;
+}

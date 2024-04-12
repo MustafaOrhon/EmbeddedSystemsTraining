@@ -120,7 +120,7 @@ static void MODEM_API_Thread (void *argument) {
         if (CMD_API_ProcessCommand(g_received_message.data, g_received_message.length, &g_command_parser) == true) {
             TRACE_INFO(g_command_parser.response);
         } else {
-            TRACE_WARNING("MODEM RESPONDED AS <- %s\r", g_received_message.data);  // change this for simetric app
+            TRACE_WARNING("MODEM RESPONDED AS <- %s\r", g_received_message.data);
         }
         Memory_API_Free(g_received_message.data);
     }

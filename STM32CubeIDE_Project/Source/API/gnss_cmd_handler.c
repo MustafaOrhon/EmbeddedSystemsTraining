@@ -1,69 +1,28 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <stdio.h>
 #include <string.h>
-#include "cmsis_os.h"
-#include "cli_cmd_handler.h"
-#include "uart_api.h"
+#include <stdlib.h>
 #include "memory_api.h"
-#include "cmd_api.h"
-#include "debug_api.h"
-#include "math_utils.h"
-#include "cli_app.h"
+#include "gnss_api.h"
+#include "gnss_cmd_handler.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-DEFINE_DEBUG_MODULE_TAG(CLI_APP);
-#define CLI_RESPONSE_BUFFER_SIZE 512
-#define DEFINE_CMD(cmd, handler_func, sep) { \
-    .command = #cmd, \
-    .command_size = sizeof(#cmd) - 1, \
-    .handler = &handler_func, \
-    .separator = sep, \
-    .separator_length = sizeof(sep) - 1 \
-}
+
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef enum {
-    eCliCmd_SetLed,
-    eCliCmd_ResetLed,
-    eCliCmd_ToggleLed,
-    eCliCmd_BlinkLed,
-    eCliCmd_SendAT,
-    eCliCmd_StartTCP,
-    eCliCmd_StopTCP,
-    eCliCmd_Last,
-} eCliCmdEnum_t;
+
+
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sCommand_t g_command_table[eCliCmd_Last] = {
-    DEFINE_CMD(led_set, CLI_CMD_LedSetHandler, ":"),
-    DEFINE_CMD(led_reset, CLI_CMD_LedResetHandler, ":"),
-    DEFINE_CMD(led_toggle, CLI_CMD_LedToggleHandler, ":"),
-    DEFINE_CMD(led_blink, CLI_CMD_LedBlinkHandler, ":"),
-    DEFINE_CMD(send_at, CLI_CMD_SendATHandler, ":"),
-    DEFINE_CMD(start_tcp, CLI_CMD_StartTCPHandler, ":"),
-    DEFINE_CMD(stop_tcp, CLI_CMD_StopTCPHandler, ":"),
-};
-static const osThreadAttr_t g_cli_app_thread_attr = {
-    .name = "CLI_Thread",
-    .stack_size = 4 * 200,
-    .priority = osPriorityNormal,
-};
+ 
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-static osThreadId_t g_cli_app_thread_id = NULL;
-static char g_cli_response_buffer[CLI_RESPONSE_BUFFER_SIZE] = {0};
-static sMessage_t g_received_message = {0};
-static sCmdParser_t g_command_parser = {
-    .command_table = g_command_table,
-    .command_table_size = DEFINE_ARRAY_LEN(g_command_table),
-    .response = g_cli_response_buffer,
-    .response_size = CLI_RESPONSE_BUFFER_SIZE
-};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -71,32 +30,60 @@ static sCmdParser_t g_command_parser = {
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
-static void CLI_APP_Thread (void *argument);
+ 
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-static void CLI_APP_Thread (void *argument) {
-    while (1) {
-        if (UART_API_ReceiveMessage(eUartApiPort_Debug, &g_received_message, osWaitForever) == false) {
-            continue;
-        }
-        if (CMD_API_ProcessCommand(g_received_message.data, g_received_message.length, &g_command_parser) == true) {
-            TRACE_INFO(g_command_parser.response);
-        } else {
-            TRACE_WARNING(g_command_parser.response);
-        }
-        Memory_API_Free(g_received_message.data);
-    }
-}
+ 
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool CLI_APP_Init (void) {
-    if (g_cli_app_thread_id == NULL) {
-        g_cli_app_thread_id = osThreadNew(CLI_APP_Thread, NULL, &g_cli_app_thread_attr);
-    }
-    if (g_cli_app_thread_id == NULL) {
+bool GNSS_CMD_GNGGAHandler(const sCommandParams_t *cmd_params) {
+    if (!CMD_API_CheckCmdParams(cmd_params)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid command parameters.\r");
         return false;
     }
+    const char *delimiter = ",";
+    char *saveptr = NULL;
+    char *token = strtok_r((char*) cmd_params->params, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing timestamp parameter.\r");
+        return false;
+    }
+    double timestamp = atof(token);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing latitude parameter.\r");
+        return false;
+    }
+    double lat_deg = atoi(token) / 100;
+    double lat_min = atof(token) - (lat_deg * 100);
+    double latitude = lat_deg + (lat_min / 60);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL || (*token != 'N' && *token != 'S')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid latitude direction.\r");
+        return false;
+    }
+    if (*token == 'S') {
+        latitude = -latitude;
+    }
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing longitude parameter.\r");
+        return false;
+    }
+    double lon_deg = atoi(token) / 100;
+    double lon_min = atof(token) - (lon_deg * 100);
+    double longitude = lon_deg + (lon_min / 60);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL || (*token != 'E' && *token != 'W')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid longitude direction.\r");
+        return false;
+    }
+    if (*token == 'W') {
+        longitude = -longitude;
+    }
+    GNSS_API_UpdateGNSSCoordinates(timestamp, latitude, longitude);
     return true;
 }
+

@@ -45,7 +45,7 @@ static const sTcpCommandInfo_t g_tcp_api_cmd_table[eTcpCmd_Last] = {
     [eTcpCmd_Cgatt] = {"AT+CGATT=1\r\n", 5000, 3},
     [eTcpCmd_CgattCheck] = {"AT+CGATT?\r\n", 5000, 3},
     [eTcpCmd_CgdCont] = {"AT+CGDCONT=1,\"IP\",\"banga\"\r\n", 5000, 3},
-    [eTcpCmd_Cgact] = {"AT+CGACT=1,1\r\n", 1000, 3},
+    [eTcpCmd_Cgact] = {"AT+CGACT=1,1\r\n", 5000, 3},
     [eTcpCmd_CgactCheck] = {"AT+CGACT?\r\n", 500, 3},
     [eTcpCmd_Ctzr] = {"AT+CTZR=1\r\n", 500, 3},
     [eTcpCmd_CtzrCheck] = {"AT+CTZR?\r\n", 500, 3},
@@ -64,7 +64,7 @@ typedef enum {
 } eTcpDisconnectCommandEnum_t;
 
 static const sTcpCommandInfo_t g_tcp_api_disc_cmd_table[eTcpDisconnectCmd_Last] = {
-    [eTcpDisconnectCmd_EtlClose] = {"AT+ETL=0,%d\r\n", 2000, 3},
+    [eTcpDisconnectCmd_EtlClose] = {"AT+ETL=0,%d\r\n", 5000, 3},
     [eTcpDisconnectCmd_CtzrClose] = {"AT+CTZR=0\r\n", 2000, 3},
     [eTcpDisconnectCmd_CgattClose] = {"AT+CGATT=0\r\n", 2000, 3},
 };

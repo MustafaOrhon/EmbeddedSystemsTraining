@@ -33,6 +33,7 @@ DEFINE_DEBUG_MODULE_TAG(SMS_APP);
 typedef enum {
     eSmsCmdEnum_StartTCP,
     eSmsCmdEnum_StopTCP,
+    eSmsCmdEnum_GetLocation,
     eSmsCmdEnum_Last,
 } eSmsCmdEnum_t;
 /**********************************************************************************************************************
@@ -47,7 +48,8 @@ static const osThreadAttr_t g_sms_api_thread_attr = {
 static osThreadId_t g_sms_api_thread_id = NULL;
 static osMessageQueueId_t g_sms_app_index_queue = NULL;
 static char g_sms_response_buffer[SMS_RESPONSE_BUFFER_SIZE] = {0};
-static const sCommand_t g_command_table[eSmsCmdEnum_Last] = {
+static const sCommand_t g_sms_command_table[eSmsCmdEnum_Last] = {
+    DEFINE_CMD(get_location,CLI_CMD_GetLocationHandler,""),
     DEFINE_CMD(start_tcp, CLI_CMD_StartTCPHandler, ":"),
     DEFINE_CMD(stop_tcp, CLI_CMD_StopTCPHandler, ":")
 };
@@ -56,9 +58,9 @@ static const sCommand_t g_command_table[eSmsCmdEnum_Last] = {
  *********************************************************************************************************************/
 static sSmsMessage_t g_sms_message = {0};
 static uint32_t g_incoming_message_index = 0;
-static sCmdParser_t g_command_parser = {
-    .command_table = g_command_table,
-    .command_table_size = DEFINE_ARRAY_LEN(g_command_table),
+static sCmdParser_t g_sms_command_parser = {
+    .command_table = g_sms_command_table,
+    .command_table_size = DEFINE_ARRAY_LEN(g_sms_command_table),
     .response = g_sms_response_buffer,
     .response_size = SMS_RESPONSE_BUFFER_SIZE
 };
@@ -85,11 +87,10 @@ static void SMS_APP_Thread (void *argument) {
         if (SMS_API_ReceiveMessage(&g_sms_message) == false) {
             continue;
         }
-        if (CMD_API_ProcessCommand(g_sms_message.message_content, g_sms_message.message_content_len, &g_command_parser) == true) {
-            TRACE_INFO(g_command_parser.response);
-            SMS_API_SendSms("Command processed!");
+        if (CMD_API_ProcessCommand(g_sms_message.message_content, g_sms_message.message_content_len, &g_sms_command_parser) == true) {
+            TRACE_INFO(g_sms_command_parser.response);
         } else {
-            TRACE_WARNING(g_command_parser.response);
+            TRACE_WARNING(g_sms_command_parser.response);
             SMS_API_SendSms("Wrong Command!");
         }
         if (SMS_API_DeleteMessage(g_incoming_message_index) == false) {

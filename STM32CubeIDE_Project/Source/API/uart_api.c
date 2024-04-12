@@ -13,6 +13,7 @@
 #define MESSAGE_QUEUE_SIZE          5
 #define UART1_MAX_MESSAGE_SIZE      64
 #define UART2_MAX_MESSAGE_SIZE      1024
+#define UART7_MAX_MESSAGE_SIZE      512
 #define MSG_QUEUE_PUT_TMO                    100
 #define MAX_DELIMITER_LENGTH                 10
 /**********************************************************************************************************************
@@ -52,7 +53,12 @@ static const sUartApiDesc_t g_uart_api_static_lut[eUartApiPort_Last] = {
     [eUartApiPort_Modem] = {
         .driver_port = eUartDriverPort_Uart2,
         .queue_name = "Uart-2 Queue",
-        .max_message_size = UART2_MAX_MESSAGE_SIZE}
+        .max_message_size = UART2_MAX_MESSAGE_SIZE},
+    [eUartApiPort_Gnss] = {
+        .driver_port = eUartDriverPort_Uart7,
+        .queue_name = "Uart-7 Queue",
+        .max_message_size = UART7_MAX_MESSAGE_SIZE},
+
 };
 static const osThreadAttr_t g_uart_api_thread_attr = {
     .name = "UART API Thread",
@@ -71,7 +77,13 @@ static const osMutexAttr_t g_uart_api_mutex_attrs[eUartApiPort_Last] = {
         .attr_bits = osMutexRecursive,
         .cb_mem = NULL,
         .cb_size = 0
-    }
+    },
+    [eUartApiPort_Gnss] = {
+        .name = "Gnss Mutex",
+        .attr_bits = osMutexRecursive,
+        .cb_mem = NULL,
+        .cb_size = 0
+    },
 };
 DEFINE_DEBUG_MODULE_TAG(UART_API);
 /**********************************************************************************************************************
@@ -86,6 +98,13 @@ static sUartApiWorkData_t g_uart_api_dynamic_lut[eUartApiPort_Last] = {
         .delimiter = NULL,
         .port_mutex = NULL, },
     [eUartApiPort_Modem] = {
+        .buffer = NULL,
+        .index = 0,
+        .state = eUartApiState_Initialize,
+        .is_initialized = false,
+        .delimiter = NULL,
+        .port_mutex = NULL, },
+    [eUartApiPort_Gnss] = {
         .buffer = NULL,
         .index = 0,
         .state = eUartApiState_Initialize,

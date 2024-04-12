@@ -13,6 +13,7 @@ typedef enum {
     eUartDriverPort_First = 0,
     eUartDriverPort_Uart1 = eUartDriverPort_First,
     eUartDriverPort_Uart2,
+    eUartDriverPort_Uart7,
     eUartDriverPort_Last,
 } eUartPortEnum_t;
 /**********************************************************************************************************************

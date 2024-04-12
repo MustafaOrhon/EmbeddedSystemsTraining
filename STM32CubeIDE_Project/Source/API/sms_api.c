@@ -70,7 +70,7 @@ bool SMS_API_SendSms (const char *message_content) {
         return false;
     }
     char *at_command_send_number = "AT+CMGS=\"37069354293\"\r\n";
-    eModemStatusEnum_t status = MODEM_API_SendAndWaitRepeat(at_command_send_number, 5000, 3, 200);
+    eModemStatusEnum_t status = MODEM_API_SendAndWaitRepeat(at_command_send_number, 10000, 3, 5000);
     if (status != eModemStatus_ReadyToSendMessage) {
         Modem_API_Unlock();
         return false;

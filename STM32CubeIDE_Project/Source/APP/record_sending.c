@@ -5,15 +5,15 @@
 #include "cmsis_os.h"
 #include "memory_api.h"
 #include "network_app.h"
+#include "gnss_api.h"
 #include "record_sending.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
 #define RECORD_SENDING_APP_QUEUE_SIZE 10
 #define RECORD_SENDING_APP_QUEUE_WAIT_TIME 300
-#define RECORD_SENDING_APP_TIMER_PERIOD      10000
-#define RECORD_SENDING_APP_TEXT          ("Hello Teltonika!\r\n")
-#define RECORD_SENDING_APP_TEXT_LENGTH   (sizeof(RECORD_SENDING_APP_TEXT) - 1)
+#define RECORD_SENDING_APP_TIMER_PERIOD      5000
+#define GNSS_DATA_BUFFER_SIZE 256
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -23,7 +23,7 @@
  *********************************************************************************************************************/
 static const osThreadAttr_t g_record_sendig_app_thread_attr = {
     .name = "RECORD_SENDING_APP_Thread",
-    .stack_size = 4 * 80,
+    .stack_size = 4 * 128,
     .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************
@@ -35,10 +35,8 @@ static osTimerId_t g_record_sending_app_timer_id = NULL;
 static sRecordSendingAPPTask_t g_received_task = {0};
 static sNetworkAPPTaskParams_t g_sending_network_task = {0};
 static sNetworkAppConnectParams g_connect_params = {0};
-static sNetworkAppSendParams g_send_params = {
-    .data = (const uint8_t*) RECORD_SENDING_APP_TEXT,
-    .data_length = RECORD_SENDING_APP_TEXT_LENGTH
-};
+static char g_gnss_data_buffer[GNSS_DATA_BUFFER_SIZE] = {0};
+static sNetworkAppSendParams g_send_params = {.data = NULL, .data_length = 0};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -52,6 +50,9 @@ static void RecordSending_APP_TimerCallback (void *argument);
  * Definitions of private functions
  *********************************************************************************************************************/
 static void RecordSending_APP_TimerCallback (void *argument) {
+    GNSS_API_FormatGNSSData(g_gnss_data_buffer,GNSS_DATA_BUFFER_SIZE);
+    g_send_params.data = (const uint8_t *)g_gnss_data_buffer;
+    g_send_params.data_length = strlen(g_gnss_data_buffer);
     g_sending_network_task.params = &g_connect_params;
     g_sending_network_task.task = eNetworkAPPTask_Connect;
     Network_APP_AddTask(&g_sending_network_task);

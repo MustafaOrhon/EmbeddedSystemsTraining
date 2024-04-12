@@ -14,6 +14,7 @@ typedef enum {
     eUartApiPort_First = 0,
     eUartApiPort_Debug = eUartApiPort_First,
     eUartApiPort_Modem,
+    eUartApiPort_Gnss,
     eUartApiPort_Last
 } eUartApiPortEnum_t;
 /**********************************************************************************************************************

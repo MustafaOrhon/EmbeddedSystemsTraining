@@ -12,6 +12,7 @@
 #define UART_DRIVER_SUB_PRIORITY        0
 #define UART1_RING_BUFFER_SIZE          64
 #define UART2_RING_BUFFER_SIZE          1024
+#define UART7_RING_BUFFER_SIZE          512
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
@@ -65,6 +66,20 @@ static const sUartStaticDesc_t g_uart_static_lut[eUartDriverPort_Last] = {
         .ring_buffer_size = UART2_RING_BUFFER_SIZE,
         .irq_number = USART2_IRQn,
         .enable_clock = LL_APB1_GRP1_EnableClock,
+    },
+    [eUartDriverPort_Uart7] = {
+        .port = UART7,
+        .baudrate = 115200,
+        .datawidth = LL_USART_DATAWIDTH_8B,
+        .stopbits = LL_USART_STOPBITS_1,
+        .parity = LL_USART_PARITY_NONE,
+        .transfer_direction = LL_USART_DIRECTION_TX_RX,
+        .hardware_flow_control = LL_USART_HWCONTROL_NONE,
+        .oversampling = LL_USART_OVERSAMPLING_16,
+        .clock = LL_APB1_GRP1_PERIPH_UART7,
+        .ring_buffer_size = UART7_RING_BUFFER_SIZE,
+        .irq_number = UART7_IRQn,
+        .enable_clock = LL_APB1_GRP1_EnableClock,
     }
 };
 /**********************************************************************************************************************
@@ -95,6 +110,9 @@ void USART1_IRQHandler (void) {
 }
 void USART2_IRQHandler (void) {
     UART_Driver_IRQHandler(eUartDriverPort_Uart2);
+}
+void UART7_IRQHandler (void) {
+    UART_Driver_IRQHandler(eUartDriverPort_Uart7);
 }
 /**********************************************************************************************************************
  * Definitions of exported functions

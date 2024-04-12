@@ -1,30 +1,19 @@
-#ifndef SOURCE_DRIVER_GPIO_DRIVER_H_
-#define SOURCE_DRIVER_GPIO_DRIVER_H_
+#ifndef SOURCE_API_GNSS_API_H_
+#define SOURCE_API_GNSS_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eGpioDriverPin_First = 0,
-    eGpioDriverPin_ModemPowerOffPin = eGpioDriverPin_First,
-    eGpioDriverPin_GPSFixLedPin,
-    eGpioDriverPin_StatLedPin,
-    eGpioDriverPin_ModemUartDtrPin,
-    eGpioDriverPin_ModemUartRtsPin,
-    eGpioDriverPin_ModemOnPin,
-    eGpioDriverPin_ModemUartCtsPin,
-    eGpioDriverPin_GnssOnPin,
-    eGpioDriverPin_DebugTxPin,
-    eGpioDriverPin_DebugRxPin,
-    eGpioDriverPin_ModemUartRxPin,
-    eGpioDriverPin_ModemUartTxPin,
-    eGpioDriverPin_GnssUartTxPin,
-    eGpioDriverPin_GnssUartRxPin,
-    eGpioDriverPin_Last,
-} eGpioDriverPin_t;
+typedef struct {
+    double timestamp;
+    double latitude;
+    double longitude;
+} sGNSSDataParams_t;
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -36,8 +25,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool GPIO_Driver_Init(void);
-bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state);
-bool GPIO_Driver_ReadPin(eGpioDriverPin_t pin_name, bool *pin_state);
-bool GPIO_Driver_TogglePin(eGpioDriverPin_t pin_name);
-#endif /* SOURCE_DRIVER_GPIO_DRIVER_H_ */
+bool GNSS_API_Init(void);
+void GNSS_API_UpdateGNSSCoordinates(double timestamp, double latitude, double longitude);
+void GNSS_API_FormatGNSSData (char *buffer, size_t buffer_size) ;
+#endif /* SOURCE_API_GNSS_API_H_ */
