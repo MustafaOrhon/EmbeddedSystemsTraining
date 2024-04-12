@@ -21,11 +21,11 @@
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool SMS_API_Init(void);
-bool SMS_API_SendSms(const char* message_content);
-bool SMS_API_ReceiveMessage(sSmsMessage_t* smsMessage);
-bool SMS_API_DeleteMessage(uint32_t index);
-bool SMS_API_ListAllMessages(void);
-bool SMS_API_ReadMessageByIndex(uint32_t index);
-bool SMS_API_SetTextMode(void);
+bool SMS_API_Init (void);
+bool SMS_API_SendSms (const char *message_content);
+bool SMS_API_ReceiveMessage (sSmsMessage_t *smsMessage);
+bool SMS_API_DeleteMessage (uint32_t index);
+bool SMS_API_ListAllMessages (void);
+bool SMS_API_ReadMessageByIndex (uint32_t index);
+bool SMS_API_SetTextMode (void);
 #endif /* SOURCE_API_SMS_API_H_ */

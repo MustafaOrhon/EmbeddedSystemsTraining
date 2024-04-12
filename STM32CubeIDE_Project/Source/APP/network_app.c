@@ -100,7 +100,7 @@ bool Network_APP_Init (void){
 
 }
 
-bool Network_APP_AddTask(const sNetworkAPPTaskParams_t *params) {
+bool Network_APP_AddTask (const sNetworkAPPTaskParams_t *params) {
     if (params == NULL) {
         return false;
     }

@@ -166,7 +166,7 @@ bool TCP_API_Connect (const char *ip, uint16_t port) {
     return true;
 }
 
-bool TCP_API_Disconnect(uint8_t socket_id) {
+bool TCP_API_Disconnect (uint8_t socket_id) {
     if (Modem_API_Lock() == false) {
         return false;
     }
@@ -194,7 +194,7 @@ bool TCP_API_Disconnect(uint8_t socket_id) {
     return true;
 }
 
-bool TCP_API_Send (const uint8_t *data, size_t data_length,uint8_t socket_id) {
+bool TCP_API_Send (const uint8_t *data, size_t data_length, uint8_t socket_id) {
     if (Modem_API_Lock() == false) {
         return false;
     }

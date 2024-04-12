@@ -21,7 +21,7 @@
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-  static const osThreadAttr_t g_record_sendig_app_thread_attr = {
+static const osThreadAttr_t g_record_sendig_app_thread_attr = {
     .name = "RECORD_SENDING_APP_Thread",
     .stack_size = 4 * 80,
     .priority = osPriorityNormal,
@@ -29,16 +29,16 @@
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
- static osMessageQueueId_t g_record_sending_app_queue = NULL;
- static osThreadId_t g_record_sending_app_thread_id = NULL;
- static osTimerId_t g_record_sending_app_timer_id = NULL;
- static sRecordSendingAPPTask_t g_received_task = {0};
- static sNetworkAPPTaskParams_t g_sending_network_task = {0};
- static sNetworkAppConnectParams g_connect_params = {0};
- static sNetworkAppSendParams g_send_params = {
-     .data = (const uint8_t *)RECORD_SENDING_APP_TEXT,
-     .data_length = RECORD_SENDING_APP_TEXT_LENGTH
- };
+static osMessageQueueId_t g_record_sending_app_queue = NULL;
+static osThreadId_t g_record_sending_app_thread_id = NULL;
+static osTimerId_t g_record_sending_app_timer_id = NULL;
+static sRecordSendingAPPTask_t g_received_task = {0};
+static sNetworkAPPTaskParams_t g_sending_network_task = {0};
+static sNetworkAppConnectParams g_connect_params = {0};
+static sNetworkAppSendParams g_send_params = {
+    .data = (const uint8_t*) RECORD_SENDING_APP_TEXT,
+    .data_length = RECORD_SENDING_APP_TEXT_LENGTH
+};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -46,8 +46,8 @@
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
- static void RecordSending_APP_Thread (void *argument);
- static void RecordSending_APP_TimerCallback(void *argument);
+static void RecordSending_APP_Thread (void *argument);
+static void RecordSending_APP_TimerCallback (void *argument);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
@@ -62,6 +62,7 @@ static void RecordSending_APP_TimerCallback (void *argument) {
     g_sending_network_task.task = eNetworkAPPTask_Disconnect;
     Network_APP_AddTask(&g_sending_network_task);
 }
+
 static void RecordSending_APP_Thread (void *argument) {
     while (1) {
         if (osMessageQueueGet(g_record_sending_app_queue, &g_received_task, NULL, osWaitForever) != osOK) {
@@ -72,7 +73,7 @@ static void RecordSending_APP_Thread (void *argument) {
         }
         switch (g_received_task.task) {
             case eRecordSendingAPPTask_Start: {
-                strncpy(g_connect_params.ip,g_received_task.params->ip, sizeof(g_connect_params.ip) - 1);
+                strncpy(g_connect_params.ip, g_received_task.params->ip, sizeof(g_connect_params.ip) - 1);
                 g_connect_params.ip[sizeof(g_connect_params.ip) - 1] = '\0';
                 g_connect_params.port = g_received_task.params->port;
                 osTimerStart(g_record_sending_app_timer_id, RECORD_SENDING_APP_TIMER_PERIOD);
@@ -89,7 +90,7 @@ static void RecordSending_APP_Thread (void *argument) {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool RecordSending_APP_Init (void){
+bool RecordSending_APP_Init (void) {
     if (g_record_sending_app_queue == NULL) {
         g_record_sending_app_queue = osMessageQueueNew(RECORD_SENDING_APP_QUEUE_SIZE, sizeof(sRecordSendingAPPTask_t), NULL);
         if (g_record_sending_app_queue == NULL) {
@@ -97,7 +98,7 @@ bool RecordSending_APP_Init (void){
         }
     }
     if (g_record_sending_app_timer_id == NULL) {
-        g_record_sending_app_timer_id = osTimerNew(RecordSending_APP_TimerCallback, osTimerPeriodic, NULL,NULL);
+        g_record_sending_app_timer_id = osTimerNew(RecordSending_APP_TimerCallback, osTimerPeriodic, NULL, NULL);
         if (g_record_sending_app_timer_id == NULL) {
             return false;
         }
@@ -110,7 +111,7 @@ bool RecordSending_APP_Init (void){
     }
     return true;
 }
-bool RecordSending_APP_AddTask (const sRecordSendingAPPTask_t *params){
+bool RecordSending_APP_AddTask (const sRecordSendingAPPTask_t *params) {
     if (params == NULL || params->params == NULL) {
         return false;
     }

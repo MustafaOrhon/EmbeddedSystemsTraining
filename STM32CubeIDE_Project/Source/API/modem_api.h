@@ -51,12 +51,12 @@ typedef struct {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool MODEM_API_Init(void);
-eModemStatusEnum_t MODEM_API_SendAndWait(const char *cmd, uint32_t wait_time);
+bool MODEM_API_Init (void);
+eModemStatusEnum_t MODEM_API_SendAndWait (const char *cmd, uint32_t wait_time);
 eModemStatusEnum_t MODEM_API_SendAndWaitRepeat (const char *cmd, uint32_t wait_time, uint32_t repeat, uint32_t delay);
-bool Modem_API_Lock(void);
-bool Modem_API_Unlock(void);
-void Modem_API_SetCommandResult(eModemStatusEnum_t status);
-bool MODEM_API_ReceiveFromQueue(eQueueTypeEnum_t queue, void *message, uint32_t queue_wait_time);
-bool MODEM_API_PutToQueue(eQueueTypeEnum_t queue, const void *message, uint32_t queue_wait_time);
+bool Modem_API_Lock (void);
+bool Modem_API_Unlock (void);
+void Modem_API_SetCommandResult (eModemStatusEnum_t status);
+bool MODEM_API_ReceiveFromQueue (eQueueTypeEnum_t queue, void *message, uint32_t queue_wait_time);
+bool MODEM_API_PutToQueue (eQueueTypeEnum_t queue, const void *message, uint32_t queue_wait_time);
 #endif /* SOURCE_API_MODEM_API_H_ */

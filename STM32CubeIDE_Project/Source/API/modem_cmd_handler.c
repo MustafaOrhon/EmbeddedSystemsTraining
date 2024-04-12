@@ -130,7 +130,7 @@ bool MODEM_CMD_OkHandler (const sCommandParams_t *cmd_params) {
         snprintf(cmd_params->response, cmd_params->response_size, "Invalid command parameters.\r");
         return false;
     }
-    snprintf(cmd_params->response, cmd_params->response_size,"MODEM RESPONDED AS <- %s\r", cmd_params->params);
+    snprintf(cmd_params->response, cmd_params->response_size, "MODEM RESPONDED AS <- %s\r", cmd_params->params);
     Modem_API_SetCommandResult(eModemStatus_Ok);
     return true;
 }
@@ -294,7 +294,7 @@ bool MODEM_CMD_CmgrHandler (const sCommandParams_t *cmd_params) {
     return true;
 }
 
-bool MODEM_CMD_ETLHandler(const sCommandParams_t *cmd_params) {
+bool MODEM_CMD_ETLHandler (const sCommandParams_t *cmd_params) {
     if (CMD_API_CheckCmdParams(cmd_params) == false) {
         return false;
     }
@@ -306,6 +306,7 @@ bool MODEM_CMD_ETLHandler(const sCommandParams_t *cmd_params) {
     snprintf(cmd_params->response, cmd_params->response_size, "Socket ID updated to %u.\r\n", new_socket_id);
     return true;
 }
+
 bool MODEM_CMD_EindHandler (const sCommandParams_t *cmd_params) {
     if (CMD_API_CheckCmdParams(cmd_params) == false) {
         return false;
@@ -316,7 +317,7 @@ bool MODEM_CMD_EindHandler (const sCommandParams_t *cmd_params) {
             snprintf(cmd_params->response, cmd_params->response_size, "AT Ready!\r\n");
             break;
         }
-        case MODEM_INIT_STATUS_PHB_READY:{
+        case MODEM_INIT_STATUS_PHB_READY: {
             snprintf(cmd_params->response, cmd_params->response_size, "PHB Ready!\r\n");
             break;
         }

@@ -22,8 +22,8 @@ typedef struct {
 } sNetworkAppConnectParams;
 
 typedef struct {
-const uint8_t *data;
-size_t data_length;
+    const uint8_t *data;
+    size_t data_length;
 } sNetworkAppSendParams;
 
 typedef struct {
