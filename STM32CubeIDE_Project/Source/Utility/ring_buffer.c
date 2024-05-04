@@ -1,32 +1,25 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include "cmsis_os.h"
-#include "gpio_driver.h"
-#include "led_api.h"
+#include <stdlib.h>
+#include "memory_api.h"
+#include "ring_buffer.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define LED_API_MAX_LED_NUMBER    1
-#define LED_API_MIN_LED_NUMBER    0
+
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef struct {
-    eLedApiNameEnum_t pin;
-    bool is_inverted;
-} sLedProperties_t;
+ 
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
-    [eLedApi_GpsFix] = {.pin = eGpioDriverPin_GPSFixLedPin, .is_inverted = true},
-    [eLedApi_Status] = {.pin = eGpioDriverPin_StatLedPin, .is_inverted = false}
-};
+ 
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-
+ 
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -38,42 +31,51 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-
+ 
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+sRingBuffer_t *Ring_Buffer_Init (size_t capacity) {
+    if (capacity == 0) {
+        return NULL;
+    }
+    sRingBuffer_t *ring_buffer = (sRingBuffer_t *)Memory_API_Calloc(1, sizeof(sRingBuffer_t));
+    if (ring_buffer == NULL) {
+        return NULL;
+    }
+    ring_buffer->buffer = (uint8_t *)Memory_API_Calloc(capacity, sizeof(uint8_t));
+    if (ring_buffer->buffer == NULL) {
+        Memory_API_Free(ring_buffer);
+        return NULL;
+    }
+    ring_buffer->capacity = capacity;
+    return ring_buffer;
+}
+
+bool Ring_Buffer_Write (sRingBuffer_t *ring_buffer, uint8_t data) {
+    if (ring_buffer == NULL) {
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, !(g_led_api_mapping[led].is_inverted));
+    if (ring_buffer->count == ring_buffer->capacity) {
+        ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
+    }
+    ring_buffer->buffer[ring_buffer->head] = data;
+    ring_buffer->head = (ring_buffer->head + 1) % ring_buffer->capacity;
+    if (ring_buffer->count < ring_buffer->capacity) {
+        ring_buffer->count++;
+    }
+    return true;
 }
 
-bool LED_API_TurnOff (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+bool Ring_Buffer_Read (sRingBuffer_t *ring_buffer, uint8_t *data) {
+    if ((ring_buffer == NULL) || (data == NULL)) {
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, g_led_api_mapping[led].is_inverted);
-}
-
-bool LED_API_Toggle (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+    if (ring_buffer->count == 0) {
         return false;
     }
-    return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
-}
-
-const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
-    switch (led) {
-        case eLedApi_GpsFix:
-            return "GNSS Fix";
-        case eLedApi_Status:
-            return "Status";
-        default:
-            return "Unknown LED";
-    }
-}
-
-bool LED_API_IsLEDValid (uint32_t led_number) {
-    return ((led_number >= LED_API_MIN_LED_NUMBER) && (led_number <= LED_API_MAX_LED_NUMBER));
+    *data = ring_buffer->buffer[ring_buffer->tail];
+    ring_buffer->tail = (ring_buffer->tail + 1) % ring_buffer->capacity;
+    ring_buffer->count--;
+    return true;
 }

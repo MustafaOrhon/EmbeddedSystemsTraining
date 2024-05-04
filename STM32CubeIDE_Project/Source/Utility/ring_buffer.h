@@ -1,22 +1,25 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_UTILITY_RING_BUFFER_H_
+#define SOURCE_UTILITY_RING_BUFFER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
-
+typedef struct {
+    uint8_t *buffer;
+    size_t capacity;
+    volatile size_t head;
+    volatile size_t tail;
+    size_t count;
+} sRingBuffer_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -24,9 +27,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+sRingBuffer_t *Ring_Buffer_Init(size_t capacity);
+bool Ring_Buffer_Write(sRingBuffer_t *ring_buffer, uint8_t data);
+bool Ring_Buffer_Read(sRingBuffer_t *ring_buffer, uint8_t *data);
+#endif /* SOURCE_UTILITY_RING_BUFFER_H_ */

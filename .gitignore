@@ -1,0 +1,8 @@
+/STM32CubeIDE_Project/Debug/
+bin/
+obj/
+*.layout
+*.depend
+
+/STM32CubeIDE_Project/STM32CubeIDE_Project Debug.launch
+/STM32CubeIDE_Project/STM32CubeIDE_Project.launch

@@ -1,18 +1,15 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_API_SMS_API_H_
+#define SOURCE_API_SMS_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
+#include <stdint.h>
+#include "modem_api.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +21,11 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool SMS_API_Init (void);
+bool SMS_API_SendSms (const char *message_content);
+bool SMS_API_ReceiveMessage (sSmsMessage_t *smsMessage);
+bool SMS_API_DeleteMessage (uint32_t index);
+bool SMS_API_ListAllMessages (void);
+bool SMS_API_ReadMessageByIndex (uint32_t index);
+bool SMS_API_SetTextMode (void);
+#endif /* SOURCE_API_SMS_API_H_ */

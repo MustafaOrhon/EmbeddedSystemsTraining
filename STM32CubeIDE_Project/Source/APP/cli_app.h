@@ -1,5 +1,5 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_APP_CLI_APP_H_
+#define SOURCE_APP_CLI_APP_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
@@ -7,12 +7,7 @@
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +19,5 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool CLI_APP_Init(void);
+#endif /* SOURCE_APP_CLI_APP_H_ */

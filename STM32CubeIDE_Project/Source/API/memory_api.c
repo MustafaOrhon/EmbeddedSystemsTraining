@@ -1,32 +1,31 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <stdlib.h>
 #include "cmsis_os.h"
-#include "gpio_driver.h"
-#include "led_api.h"
+#include "irq_utils.h"
+#include "memory_api.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define LED_API_MAX_LED_NUMBER    1
-#define LED_API_MIN_LED_NUMBER    0
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef struct {
-    eLedApiNameEnum_t pin;
-    bool is_inverted;
-} sLedProperties_t;
+
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
-    [eLedApi_GpsFix] = {.pin = eGpioDriverPin_GPSFixLedPin, .is_inverted = true},
-    [eLedApi_Status] = {.pin = eGpioDriverPin_StatLedPin, .is_inverted = false}
+static const osMutexAttr_t g_mem_mutex_attr = {
+    "Memory Mutex",
+    osMutexRecursive,
+    NULL,
+    0U
 };
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-
+static int32_t g_mem_alloc_counter = 0;
+static osMutexId_t g_mem_mutex_id = NULL;
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -34,7 +33,7 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
- 
+
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
@@ -42,38 +41,57 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+bool Memory_API_Init (void) {
+    if ((osKernelGetState() == osKernelInactive) || (IS_IRQ() == true)) {
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, !(g_led_api_mapping[led].is_inverted));
-}
-
-bool LED_API_TurnOff (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+    g_mem_mutex_id = osMutexNew(&g_mem_mutex_attr);
+    if (g_mem_mutex_id == NULL) {
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, g_led_api_mapping[led].is_inverted);
+    return true;
 }
-
-bool LED_API_Toggle (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-        return false;
+void *Memory_API_Alloc (bool is_calloc, size_t count, size_t size) {
+    if ((count == 0) || (size == 0) || (IS_IRQ() == true)) {
+        return NULL;
     }
-    return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
+    if (osThreadGetId() != NULL) {
+
+        if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
+            return NULL;
+        }
+    }
+    void *ptr = NULL;
+    ptr = is_calloc ? calloc(count, size) : malloc(size);
+    if (ptr != NULL) {
+        g_mem_alloc_counter++;
+    }
+    if (osThreadGetId() != NULL) {
+        if (osMutexRelease(g_mem_mutex_id) != osOK) {
+            return NULL;
+        }
+    }
+    return ptr;
 }
 
-const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
-    switch (led) {
-        case eLedApi_GpsFix:
-            return "GNSS Fix";
-        case eLedApi_Status:
-            return "Status";
-        default:
-            return "Unknown LED";
+void Memory_API_Free (void *ptr) {
+    if ((ptr == NULL) || (IS_IRQ() == true)) {
+        return;
+    }
+    if (osThreadGetId() != NULL) {
+        if (osMutexAcquire(g_mem_mutex_id, osWaitForever) != osOK) {
+            return;
+        }
+    }
+    free(ptr);
+    g_mem_alloc_counter--;
+    if (osThreadGetId() != NULL) {
+        if (osMutexRelease(g_mem_mutex_id) != osOK) {
+            return;
+        }
     }
 }
 
-bool LED_API_IsLEDValid (uint32_t led_number) {
-    return ((led_number >= LED_API_MIN_LED_NUMBER) && (led_number <= LED_API_MAX_LED_NUMBER));
+int32_t Memory_API_GetAllocCounter (void) {
+    return g_mem_alloc_counter;
 }

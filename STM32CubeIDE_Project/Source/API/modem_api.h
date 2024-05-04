@@ -1,5 +1,5 @@
-#ifndef __UART_DRIVER__H__
-#define __UART_DRIVER__H__
+#ifndef SOURCE_API_MODEM_API_H_
+#define SOURCE_API_MODEM_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
@@ -9,17 +9,41 @@
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eUartDriverPort_First = 0,
-    eUartDriverPort_Uart1 = eUartDriverPort_First,
-    eUartDriverPort_Uart2,
-    eUartDriverPort_Uart7,
-    eUartDriverPort_Last,
-} eUartPortEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
+typedef enum {
+    eModemStatus_Ok,
+    eModemStatus_Error,
+    eModemStatus_Timeout,
+    eModemStatus_Busy,
+    eModemStatus_ReadyToSendMessage,
+    eModemStatus_Unknown
+} eModemStatusEnum_t;
 
+typedef enum {
+    eQueueType_First = 0,
+    eQueueType_General = eQueueType_First,
+    eQueueType_SMS,
+    eQueueType_Last
+} eQueueTypeEnum_t;
+
+typedef enum {
+    eSmsStatus_Unknown = 0,
+    eSmsStatus_Unread,
+    eSmsStatus_Read,
+} eSmsStatusEnum_t;
+
+typedef struct {
+    uint32_t index;
+    eSmsStatusEnum_t status;
+    char phone_number[16];
+    char originator_name[30];
+    uint64_t time_stamp;
+    char *message_content;
+    size_t message_content_len;
+} sSmsMessage_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -27,8 +51,12 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool UART_Driver_Init(eUartPortEnum_t port, uint32_t baud_rate);
-bool UART_Driver_SendByte(eUartPortEnum_t port, uint8_t byte);
-bool UART_Driver_SendMultipleBytes(eUartPortEnum_t port, const uint8_t *bytes, size_t size);
-bool UART_Driver_ReadByte(eUartPortEnum_t port, uint8_t *byte);
-#endif /* __UART_DRIVER__H__ */
+bool MODEM_API_Init (void);
+eModemStatusEnum_t MODEM_API_SendAndWait (const char *cmd, uint32_t wait_time);
+eModemStatusEnum_t MODEM_API_SendAndWaitRepeat (const char *cmd, uint32_t wait_time, uint32_t repeat, uint32_t delay);
+bool Modem_API_Lock (void);
+bool Modem_API_Unlock (void);
+void Modem_API_SetCommandResult (eModemStatusEnum_t status);
+bool MODEM_API_ReceiveFromQueue (eQueueTypeEnum_t queue, void *message, uint32_t queue_wait_time);
+bool MODEM_API_PutToQueue (eQueueTypeEnum_t queue, const void *message, uint32_t queue_wait_time);
+#endif /* SOURCE_API_MODEM_API_H_ */

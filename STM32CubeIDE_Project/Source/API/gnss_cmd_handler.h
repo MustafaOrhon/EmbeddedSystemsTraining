@@ -1,18 +1,14 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_API_GNSS_CMD_HANDLER_H_
+#define SOURCE_API_GNSS_CMD_HANDLER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdbool.h>
+#include "stdbool.h"
+#include "cmd_api.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +20,5 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool GNSS_CMD_GNGGAHandler(const sCommandParams_t *cmd_params);
+#endif /* SOURCE_API_GNSS_CMD_HANDLER_H_ */

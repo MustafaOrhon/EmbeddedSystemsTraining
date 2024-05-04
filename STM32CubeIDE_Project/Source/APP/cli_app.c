@@ -1,32 +1,69 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <string.h>
 #include "cmsis_os.h"
-#include "gpio_driver.h"
-#include "led_api.h"
+#include "cli_cmd_handler.h"
+#include "uart_api.h"
+#include "memory_api.h"
+#include "cmd_api.h"
+#include "debug_api.h"
+#include "math_utils.h"
+#include "cli_app.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define LED_API_MAX_LED_NUMBER    1
-#define LED_API_MIN_LED_NUMBER    0
+DEFINE_DEBUG_MODULE_TAG(CLI_APP);
+#define CLI_RESPONSE_BUFFER_SIZE 512
+#define DEFINE_CMD(cmd, handler_func, sep) { \
+    .command = #cmd, \
+    .command_size = sizeof(#cmd) - 1, \
+    .handler = &handler_func, \
+    .separator = sep, \
+    .separator_length = sizeof(sep) - 1 \
+}
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef struct {
-    eLedApiNameEnum_t pin;
-    bool is_inverted;
-} sLedProperties_t;
+typedef enum {
+    eCliCmd_SetLed,
+    eCliCmd_ResetLed,
+    eCliCmd_ToggleLed,
+    eCliCmd_BlinkLed,
+    eCliCmd_SendAT,
+    eCliCmd_StartTCP,
+    eCliCmd_StopTCP,
+    eCliCmd_Last,
+} eCliCmdEnum_t;
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
-    [eLedApi_GpsFix] = {.pin = eGpioDriverPin_GPSFixLedPin, .is_inverted = true},
-    [eLedApi_Status] = {.pin = eGpioDriverPin_StatLedPin, .is_inverted = false}
+static const sCommand_t g_command_table[eCliCmd_Last] = {
+    DEFINE_CMD(led_set, CLI_CMD_LedSetHandler, ":"),
+    DEFINE_CMD(led_reset, CLI_CMD_LedResetHandler, ":"),
+    DEFINE_CMD(led_toggle, CLI_CMD_LedToggleHandler, ":"),
+    DEFINE_CMD(led_blink, CLI_CMD_LedBlinkHandler, ":"),
+    DEFINE_CMD(send_at, CLI_CMD_SendATHandler, ":"),
+    DEFINE_CMD(start_tcp, CLI_CMD_StartTCPHandler, ":"),
+    DEFINE_CMD(stop_tcp, CLI_CMD_StopTCPHandler, ":"),
+};
+static const osThreadAttr_t g_cli_app_thread_attr = {
+    .name = "CLI_Thread",
+    .stack_size = 4 * 200,
+    .priority = osPriorityNormal,
 };
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-
+static osThreadId_t g_cli_app_thread_id = NULL;
+static char g_cli_response_buffer[CLI_RESPONSE_BUFFER_SIZE] = {0};
+static sMessage_t g_received_message = {0};
+static sCmdParser_t g_command_parser = {
+    .command_table = g_command_table,
+    .command_table_size = DEFINE_ARRAY_LEN(g_command_table),
+    .response = g_cli_response_buffer,
+    .response_size = CLI_RESPONSE_BUFFER_SIZE
+};
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -34,46 +71,32 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Prototypes of private functions
  *********************************************************************************************************************/
- 
+static void CLI_APP_Thread (void *argument);
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-
+static void CLI_APP_Thread (void *argument) {
+    while (1) {
+        if (UART_API_ReceiveMessage(eUartApiPort_Debug, &g_received_message, osWaitForever) == false) {
+            continue;
+        }
+        if (CMD_API_ProcessCommand(g_received_message.data, g_received_message.length, &g_command_parser) == true) {
+            TRACE_INFO(g_command_parser.response);
+        } else {
+            TRACE_WARNING(g_command_parser.response);
+        }
+        Memory_API_Free(g_received_message.data);
+    }
+}
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+bool CLI_APP_Init (void) {
+    if (g_cli_app_thread_id == NULL) {
+        g_cli_app_thread_id = osThreadNew(CLI_APP_Thread, NULL, &g_cli_app_thread_attr);
+    }
+    if (g_cli_app_thread_id == NULL) {
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, !(g_led_api_mapping[led].is_inverted));
-}
-
-bool LED_API_TurnOff (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-        return false;
-    }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, g_led_api_mapping[led].is_inverted);
-}
-
-bool LED_API_Toggle (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
-        return false;
-    }
-    return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
-}
-
-const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
-    switch (led) {
-        case eLedApi_GpsFix:
-            return "GNSS Fix";
-        case eLedApi_Status:
-            return "Status";
-        default:
-            return "Unknown LED";
-    }
-}
-
-bool LED_API_IsLEDValid (uint32_t led_number) {
-    return ((led_number >= LED_API_MIN_LED_NUMBER) && (led_number <= LED_API_MAX_LED_NUMBER));
+    return true;
 }

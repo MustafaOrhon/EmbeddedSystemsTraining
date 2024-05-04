@@ -1,18 +1,19 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_API_GNSS_API_H_
+#define SOURCE_API_GNSS_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+typedef struct {
+    double timestamp;
+    double latitude;
+    double longitude;
+} sGNSSDataParams_t;
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +25,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool GNSS_API_Init(void);
+void GNSS_API_UpdateGNSSCoordinates(double timestamp, double latitude, double longitude);
+void GNSS_API_FormatGNSSData (char *buffer, size_t buffer_size) ;
+#endif /* SOURCE_API_GNSS_API_H_ */

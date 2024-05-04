@@ -1,22 +1,41 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_API_CMD_API_H_
+#define SOURCE_API_CMD_API_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
+typedef struct {
+    const char *params;
+    size_t length;
+    char *response;
+    size_t response_size;
+} sCommandParams_t;
 
+typedef bool (*sCmdHandler_t) (const sCommandParams_t *cmd_params);
+
+typedef struct {
+    const char *command;
+    size_t command_size;
+    sCmdHandler_t handler;
+    const char *separator;
+    size_t separator_length;
+} sCommand_t;
+
+typedef struct {
+    const sCommand_t *command_table;
+    size_t command_table_size;
+    char *response;
+    size_t response_size;
+} sCmdParser_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -24,9 +43,6 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool CMD_API_ProcessCommand(const char *data, size_t length, const sCmdParser_t *command_context);
+bool CMD_API_CheckCmdParams (const sCommandParams_t *cmd_params);
+#endif /* SOURCE_API_CMD_API_H_ */

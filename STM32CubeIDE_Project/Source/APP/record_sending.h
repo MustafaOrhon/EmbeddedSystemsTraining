@@ -1,18 +1,29 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_APP_RECORD_SENDING_H_
+#define SOURCE_APP_RECORD_SENDING_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdbool.h>
+#include "stdint.h"
+#include "stdbool.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
+typedef struct {
+    char ip[16];
+    uint16_t port;
+} sRecordSendingAPPCommandParams_t;
+
 typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+    eRecordSendingAPPTask_First = 0,
+    eRecordSendingAPPTask_Start = eRecordSendingAPPTask_First,
+    eRecordSendingAPPTask_Stop,
+    eRecordSendingAPPTask_Last,
+} eRecordSendingAPPTaskEnum_t;
+
+typedef struct {
+    eRecordSendingAPPTaskEnum_t task;
+    sRecordSendingAPPCommandParams_t *params;
+} sRecordSendingAPPTask_t;
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +35,6 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool RecordSending_APP_Init (void);
+bool RecordSending_APP_AddTask (const sRecordSendingAPPTask_t *params);
+#endif /* SOURCE_APP_RECORD_SENDING_H_ */

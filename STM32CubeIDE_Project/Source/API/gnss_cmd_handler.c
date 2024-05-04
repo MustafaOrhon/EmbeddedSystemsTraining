@@ -1,32 +1,28 @@
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include "cmsis_os.h"
-#include "gpio_driver.h"
-#include "led_api.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "memory_api.h"
+#include "gnss_api.h"
+#include "gnss_cmd_handler.h"
 /**********************************************************************************************************************
  * Private definitions and macros
  *********************************************************************************************************************/
-#define LED_API_MAX_LED_NUMBER    1
-#define LED_API_MIN_LED_NUMBER    0
+
 /**********************************************************************************************************************
  * Private typedef
  *********************************************************************************************************************/
-typedef struct {
-    eLedApiNameEnum_t pin;
-    bool is_inverted;
-} sLedProperties_t;
+
+
 /**********************************************************************************************************************
  * Private constants
  *********************************************************************************************************************/
-static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
-    [eLedApi_GpsFix] = {.pin = eGpioDriverPin_GPSFixLedPin, .is_inverted = true},
-    [eLedApi_Status] = {.pin = eGpioDriverPin_StatLedPin, .is_inverted = false}
-};
+ 
 /**********************************************************************************************************************
  * Private variables
  *********************************************************************************************************************/
-
 /**********************************************************************************************************************
  * Exported variables and references
  *********************************************************************************************************************/
@@ -38,42 +34,56 @@ static const sLedProperties_t g_led_api_mapping[eLedApi_Last] = {
 /**********************************************************************************************************************
  * Definitions of private functions
  *********************************************************************************************************************/
-
+ 
 /**********************************************************************************************************************
  * Definitions of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+bool GNSS_CMD_GNGGAHandler(const sCommandParams_t *cmd_params) {
+    if (!CMD_API_CheckCmdParams(cmd_params)) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid command parameters.\r");
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, !(g_led_api_mapping[led].is_inverted));
-}
-
-bool LED_API_TurnOff (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+    const char *delimiter = ",";
+    char *saveptr = NULL;
+    char *token = strtok_r((char*) cmd_params->params, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing timestamp parameter.\r");
         return false;
     }
-    return GPIO_Driver_WritePin(g_led_api_mapping[led].pin, g_led_api_mapping[led].is_inverted);
-}
-
-bool LED_API_Toggle (eLedApiNameEnum_t led) {
-    if ((led < eLedApi_First) || (led >= eLedApi_Last)) {
+    double timestamp = atof(token);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing latitude parameter.\r");
         return false;
     }
-    return GPIO_Driver_TogglePin(g_led_api_mapping[led].pin);
-}
-
-const char *LED_API_LedEnumToString (eLedApiNameEnum_t led) {
-    switch (led) {
-        case eLedApi_GpsFix:
-            return "GNSS Fix";
-        case eLedApi_Status:
-            return "Status";
-        default:
-            return "Unknown LED";
+    double lat_deg = atoi(token) / 100;
+    double lat_min = atof(token) - (lat_deg * 100);
+    double latitude = lat_deg + (lat_min / 60);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL || (*token != 'N' && *token != 'S')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid latitude direction.\r");
+        return false;
     }
+    if (*token == 'S') {
+        latitude = -latitude;
+    }
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Missing longitude parameter.\r");
+        return false;
+    }
+    double lon_deg = atoi(token) / 100;
+    double lon_min = atof(token) - (lon_deg * 100);
+    double longitude = lon_deg + (lon_min / 60);
+    token = strtok_r(NULL, delimiter, &saveptr);
+    if (token == NULL || (*token != 'E' && *token != 'W')) {
+        snprintf(cmd_params->response, cmd_params->response_size, "Invalid longitude direction.\r");
+        return false;
+    }
+    if (*token == 'W') {
+        longitude = -longitude;
+    }
+    GNSS_API_UpdateGNSSCoordinates(timestamp, latitude, longitude);
+    return true;
 }
 
-bool LED_API_IsLEDValid (uint32_t led_number) {
-    return ((led_number >= LED_API_MIN_LED_NUMBER) && (led_number <= LED_API_MAX_LED_NUMBER));
-}

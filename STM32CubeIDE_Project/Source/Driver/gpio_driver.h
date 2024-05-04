@@ -1,5 +1,5 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_DRIVER_GPIO_DRIVER_H_
+#define SOURCE_DRIVER_GPIO_DRIVER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
@@ -8,11 +8,23 @@
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+    eGpioDriverPin_First = 0,
+    eGpioDriverPin_ModemPowerOffPin = eGpioDriverPin_First,
+    eGpioDriverPin_GPSFixLedPin,
+    eGpioDriverPin_StatLedPin,
+    eGpioDriverPin_ModemUartDtrPin,
+    eGpioDriverPin_ModemUartRtsPin,
+    eGpioDriverPin_ModemOnPin,
+    eGpioDriverPin_ModemUartCtsPin,
+    eGpioDriverPin_GnssOnPin,
+    eGpioDriverPin_DebugTxPin,
+    eGpioDriverPin_DebugRxPin,
+    eGpioDriverPin_ModemUartRxPin,
+    eGpioDriverPin_ModemUartTxPin,
+    eGpioDriverPin_GnssUartTxPin,
+    eGpioDriverPin_GnssUartRxPin,
+    eGpioDriverPin_Last,
+} eGpioDriverPin_t;
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +36,8 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool GPIO_Driver_Init(void);
+bool GPIO_Driver_WritePin(eGpioDriverPin_t pin_name, bool pin_state);
+bool GPIO_Driver_ReadPin(eGpioDriverPin_t pin_name, bool *pin_state);
+bool GPIO_Driver_TogglePin(eGpioDriverPin_t pin_name);
+#endif /* SOURCE_DRIVER_GPIO_DRIVER_H_ */

@@ -1,22 +1,39 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_APP_LED_APP_H_
+#define SOURCE_APP_LED_APP_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdbool.h>
+#include <stdint.h>
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
+typedef struct {
+    uint32_t led_number;
+} sLedBasicCommandParams_t;
 
+typedef struct {
+    uint32_t led_number;
+    uint32_t time;
+    uint32_t frequency;
+} sBlinkCommandParams_t;
+
+typedef enum {
+    eLedAppTask_First = 0,
+    eLedAppTask_Set = eLedAppTask_First,
+    eLedAppTask_Reset,
+    eLedAppTask_Toggle,
+    eLedAppTask_Blink,
+    eLedAppTask_Last
+} eLedAppTaskEnum_t;
+
+typedef struct {
+    eLedAppTaskEnum_t task;
+    void *data;
+} sLedAppTask_t;
 /**********************************************************************************************************************
  * Exported variables
  *********************************************************************************************************************/
@@ -24,9 +41,8 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool LED_APP_Init(void);
+bool LED_APP_AddTask(const sLedAppTask_t *params);
+bool LED_APP_IsTimeValid(uint32_t time);
+bool LED_APP_IsFrequencyValid(uint32_t frequency);
+#endif /* SOURCE_APP_LED_APP_H_ */

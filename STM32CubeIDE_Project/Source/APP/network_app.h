@@ -1,18 +1,35 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+#ifndef SOURCE_APP_NETWORK_APP_H_
+#define SOURCE_APP_NETWORK_APP_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
-#include <stdbool.h>
+#include "stdint.h"
+#include "stdbool.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
 typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+    eNetworkAPPTask_First = 0,
+    eNetworkAPPTask_Connect = eNetworkAPPTask_First,
+    eNetworkAPPTask_Send,
+    eNetworkAPPTask_Disconnect,
+    eNetworkAPPTask_Last,
+} eNetworkAPPTaskEnum_t;
+
+typedef struct {
+    char ip[16];
+    uint16_t port;
+} sNetworkAppConnectParams;
+
+typedef struct {
+    const uint8_t *data;
+    size_t data_length;
+} sNetworkAppSendParams;
+
+typedef struct {
+    eNetworkAPPTaskEnum_t task;
+    void *params;
+} sNetworkAPPTaskParams_t;
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +41,7 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool Network_APP_Init (void);
+bool Network_APP_AddTask(const sNetworkAPPTaskParams_t *params);
+bool Network_APP_QueueSocketId (uint8_t *socket_id);
+#endif /* SOURCE_APP_NETWORK_APP_H_ */

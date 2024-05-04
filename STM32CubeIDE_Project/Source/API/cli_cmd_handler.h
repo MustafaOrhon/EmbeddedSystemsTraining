@@ -1,18 +1,16 @@
-#ifndef SOURCE_API_LED_API_H_
-#define SOURCE_API_LED_API_H_
+    #ifndef SOURCE_API_CLI_CMD_HANDLER_H_
+#define SOURCE_API_CLI_CMD_HANDLER_H_
 /**********************************************************************************************************************
  * Includes
  *********************************************************************************************************************/
+#include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include "cmd_api.h"
 /**********************************************************************************************************************
  * Exported definitions and macros
  *********************************************************************************************************************/
-typedef enum {
-    eLedApi_First,
-    eLedApi_GpsFix = eLedApi_First,
-    eLedApi_Status,
-    eLedApi_Last
-} eLedApiNameEnum_t;
+
 /**********************************************************************************************************************
  * Exported types
  *********************************************************************************************************************/
@@ -24,9 +22,12 @@ typedef enum {
 /**********************************************************************************************************************
  * Prototypes of exported functions
  *********************************************************************************************************************/
-bool LED_API_TurnOn(eLedApiNameEnum_t led);
-bool LED_API_TurnOff(eLedApiNameEnum_t led);
-bool LED_API_Toggle(eLedApiNameEnum_t led);
-bool LED_API_IsLEDValid(uint32_t led_number);
-const char *LED_API_LedEnumToString(eLedApiNameEnum_t led);
-#endif /* SOURCE_API_LED_API_H_ */
+bool CLI_CMD_LedSetHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedResetHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedToggleHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_LedBlinkHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_SendATHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_StartTCPHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_StopTCPHandler(const sCommandParams_t *cmd_params);
+bool CLI_CMD_GetLocationHandler(const sCommandParams_t *cmd_params);
+#endif /* SOURCE_API_CLI_CMD_HANDLER_H_ */

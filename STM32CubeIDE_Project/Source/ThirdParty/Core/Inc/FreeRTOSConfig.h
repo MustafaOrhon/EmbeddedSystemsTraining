@@ -89,7 +89,7 @@
 
 /* Software timer definitions. */
 #define configUSE_TIMERS                         1
-#define configTIMER_TASK_PRIORITY                ( 2 )
+#define configTIMER_TASK_PRIORITY                ( 30 )
 #define configTIMER_QUEUE_LENGTH                 10
 #define configTIMER_TASK_STACK_DEPTH             256
 
@@ -168,6 +168,11 @@ standard names. */
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
+ void configureTimerForRunTimeStats(void);
+ unsigned long getRunTimeCounterValue(void);
+/* Definitions needed when configGENERATE_RUN_TIME_STATS is on */
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS configureTimerForRunTimeStats
+#define portGET_RUN_TIME_COUNTER_VALUE getRunTimeCounterValue
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
